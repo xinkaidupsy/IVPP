@@ -41,7 +41,7 @@ sim_panelGVAR <- function(temp_base_ls,
   # setup default -----------------------------------------------------------
 
   # * denotes Hadamard product
-  beta = sqrt(t(PDC)^2 * (diag(sigma) %o% diag(kappa)) / (1-t(PDC)^2))
+  # beta = sqrt(t(PDC)^2 * (diag(sigma) %o% diag(kappa)) / (1-t(PDC)^2))
 
   # Generate the means (same for all variables in a wave):
   means <- seq_len(n_time) * mean_trend
@@ -73,7 +73,7 @@ sim_panelGVAR <- function(temp_base_ls,
     data <-
     data_long <- list()
 
-  # ----- all true temp and cont networks -----
+  # ----- all true temp, cont networks, and beta -----
 
   # cont list for all waves and all groups
   cont_ls <- lapply(seq_len(n_group), function(g){
@@ -82,6 +82,7 @@ sim_panelGVAR <- function(temp_base_ls,
     cont_ls <- lapply(seq_len(n_time),function(x){
       # rewire across wave with probability p_rewire_cont
       rewire(cont_base_ls[[g]], p = p_rewire_cont, directed = FALSE)
+
     }) %>% setNames(paste0("t",seq_len(n_time))) # set dimension names
 
     # does not rewire first wave
@@ -106,96 +107,13 @@ sim_panelGVAR <- function(temp_base_ls,
   }) %>% setNames(paste0("g",seq_len(n_group)))
 
 
-    # beta is the transpose of temp
-    beta_ls <- lapply(seq_len(n_group), function(g){
-      beta_ls <- lapply(temp_ls[[g]], t) %>% setNames(paste0("t", seq_len(n_time-1)))
-    }) %>% setNames(paste0("g",seq_len(n_group)))
-
-    # # check
-    # for(g in 1:n_group){
-    #   for (t in 1:(n_time-1)) {
-    #     print(identical(temp_ls[[g]][[t]], t(beta_ls[[g]][[t]])))
-    #   }
-    # }
-
-    # ----- sigma_zeta and beta -----
-
-    # sigma_zeta is the sigma (cov matrix) of innovations zeta (contemporaneous)
-    # P4 of https://www.tandfonline.com/doi/full/10.1080/00273171.2018.1454823
-
-    sigma_zeta_per_wave <- lapply(seq_len(n_group), function(g){
-
-      sigma_zeta_per_wave <-
-        lapply(seq_len(n_time),function(t){
-          cov2cor(solve(I-cont_ls[[g]][[t]]))
-        }) %>% setNames(paste0("t",seq_len(n_time)))
-
-    }) %>% setNames(paste0("g",seq_len(n_group)))
-
-
-    # ----- data generation -----
-
-    # stationary distribution for t1
-    # we obtain this by calculating sigma_eta (latent variance) from the sigma_zeta (innovation variance) and beta matrix (cross-wave cov matrix)
-    # Page 211 of https://link.springer.com/article/10.1007/s11336-020-09697-3
-    stationary_wave_1 <- lapply(seq_len(n_group), function(g){
-
-      stationary_wave_1 <-
-        matrix(solve(kronecker(I, I) - kronecker(beta_ls[[g]][[1]], beta_ls[[g]][[1]])) %*% c(sigma_zeta_per_wave[[g]][[1]]), n_node, n_node)
-
-    }) %>% setNames(paste0("g",seq_len(n_group)))
-
-
-    # Simulate within-person data per wave. First wave 1:
-    within_person_data_per_wave <- lapply(seq_len(n_group), function(g){
-
-      within_person_data_per_wave[["t1"]] <- list(
-        rmvnorm(n_person, sigma = stationary_wave_1[[g]])
-      )
-
-      # Simulate the other waves:
-      lapply(2:n_time, function(t){
-        within_person_data_per_wave[[t]] <- t(beta_ls[[g]][[t-1]] %*% t(within_person_data_per_wave[[g]][[t-1]])) + rmvnorm(n_person, sigma = sigma_zeta_per_wave[[g]][[t]])
-      }) %>% setNames(paste0("t", 2:n_time))
-
-    }) %>% setNames(paste0("g",seq_len(n_group)))
-
-
-    # Generate the means per person:
-    person_means_base[[paste0("g", g)]] <- rmvnorm(n_person,sigma = between)
-    person_means_per_wave[[paste0("g", g)]] <- lapply(seq_len(n_time),function(t)person_means_base[[g]] + means[t])
-
-    # Add the data together:
-    data[[paste0("g", g)]] <- lapply(seq_len(n_time), function(t) {
-      data <- data.table(person_means_per_wave[[g]][[t]] + within_person_data_per_wave[[g]][[t]])
-      setnames(data, varnames)
-      data[, `:=` (subject = (g-1)*(n_person) + seq_len(.N),
-                   time = t,
-                   group = g)]
-    })
-
-    # Merge data across waves (long format):
-    data_long[[paste0("g", g)]] <- rbindlist(data[[g]])[order(subject, time)]
-
-    net <- list(cont_ls = cont_ls,
-                temp_ls = temp_ls,
-                beta_ls = beta_ls)
-    return(net)
-
-
-
-  net_ls %>% View
-  # # check first wave of each group
-  # cont_ls[[1]][[1]]
-  # cont_ls[[2]][[1]]
-  # cont_base_ls[[2]]
-
-
-
+  # beta is the transpose of temp
+  beta_ls <- lapply(seq_len(n_group), function(g){
+    beta_ls <- lapply(temp_ls[[g]], t) %>% setNames(paste0("t", seq_len(n_time-1)))
+  }) %>% setNames(paste0("g",seq_len(n_group)))
 
 
   # generate data -----------------------------------------------------------
-
 
 
   for (g in 1:n_group) {
@@ -205,7 +123,9 @@ sim_panelGVAR <- function(temp_base_ls,
     # sigma_zeta is the sigma (cov matrix) of innovations zeta (contemporaneous)
     # P4 of https://www.tandfonline.com/doi/full/10.1080/00273171.2018.1454823
     sigma_zeta_per_wave[[paste0("g", g)]] <-
-
+      lapply(seq_len(n_time),function(t){
+        cov2cor(solve(I-cont_ls[[g]][[t]]))
+      }) %>% setNames(paste0("t",seq_len(n_time)))
 
     # beta is the transpose of temporaneous
     beta_per_wave[[paste0("g", g)]] <-
@@ -225,36 +145,34 @@ sim_panelGVAR <- function(temp_base_ls,
 
     # Simulate within-person data per wave. First wave 1:
     within_person_data_per_wave[[paste0("g", g)]] <- list(
-      rmvnorm(n_person, sigma = stationary_wave_1[[g]])
+      mvtnorm::rmvnorm(n_person, sigma = stationary_wave_1[[g]])
     )
 
     # Simulate the other waves:
     for (t in 2:n_time){
-      within_person_data_per_wave[[g]][[t]] <- t(beta_per_wave[[g]][[t-1]] %*% t(within_person_data_per_wave[[g]][[t-1]])) + rmvnorm(n_person, sigma = sigma_zeta_per_wave[[g]][[t]])
+      within_person_data_per_wave[[g]][[t]] <- t(beta_per_wave[[g]][[t-1]] %*% t(within_person_data_per_wave[[g]][[t-1]])) + mvtnorm::rmvnorm(n_person, sigma = sigma_zeta_per_wave[[g]][[t]])
     }
 
     # Generate the means per person:
-    person_means_base[[paste0("g", g)]] <- rmvnorm(n_person,sigma = between)
+    person_means_base[[paste0("g", g)]] <- mvtnorm::rmvnorm(n_person,sigma = between)
     person_means_per_wave[[paste0("g", g)]] <- lapply(seq_len(n_time),function(t)person_means_base[[g]] + means[t])
 
     # Add the data together:
-    data[[paste0("g", g)]] <- lapply(seq_len(n_time), function(t) {
-      data <- data.table(person_means_per_wave[[g]][[t]] + within_person_data_per_wave[[g]][[t]])
-      setnames(data, varnames)
-      data[, `:=` (subject = (g-1)*(n_person) + seq_len(.N),
-                   time = t,
-                   group = g)]
+    data[[paste0("g", g)]] <- lapply(seq_len(n_time),function(t){
+      data <- as.data.frame(person_means_per_wave[[g]][[t]] + within_person_data_per_wave[[g]][[t]])
+      names(data) <- varnames
+      data$subject <- (g-1)*(n_person) + seq_len(nrow(data))
+      data$time <- t
+      data
     })
 
-    # Merge data across waves (long format):
-    data_long[[paste0("g", g)]] <- rbindlist(data[[g]])[order(subject, time)]
-
-
+    # Merge data (long format):
+    data_long[[paste0("g", g)]] <- bind_rows(data[[g]]) %>% arrange(subject,time)
 
   } # end: for(g in 1:n_group)
 
   # convert list to data.table
-  data_merged <- rbindlist(data_long)
+  data_merged <- bind_rows(data_long)
 
   # return data
   return(data_merged)
