@@ -45,14 +45,7 @@ gen_panelGVAR <- function(n_node = 6,
   # Initialization --------------------------------------------------------
 
   # base networks for each group
-  cont_base_ls <-
-    temp_base_ls <-
-    # list for all networks
-    cont_ls <-
-    temp_ls <-
-    kappa_ls <-
-    PDC_ls <- list()
-
+  cont_base_ls <- temp_base_ls <- list()
 
   # generate networks -------------------------------------------------------
 
@@ -82,37 +75,8 @@ gen_panelGVAR <- function(n_node = 6,
 
   # ----- all true temp and cont networks -----
 
-  for (g in 1:n_group){
-    # cont per wave for group g
-    cont_ls[[paste0("g",g)]] <-
-      # # rewire with probability p_rewire_cont if there is non-stationarity
-      lapply(seq_len(n_time),function(x){
-        rewire(cont_base_ls[[g]], p = p_rewire_cont, directed = FALSE)
-      }) %>%
-      # set dimension names
-      setNames(paste0("t",seq_len(n_time)))
-
-    # does not rewire first wave of each group
-    cont_ls[[g]][[1]] <- cont_base_ls[[g]]
-
-    # temp per wave for group g
-    temp_ls[[paste0("g",g)]] <-
-      # rewire with probability p_rewire_temp if there is non-stationarity
-      lapply(seq_len(n_time-1),function(x){
-        rewire(temp_base_ls[[g]], p = p_rewire_temp, directed = TRUE)
-      }) %>%
-      # set dimension names
-      setNames(paste0("t",seq_len(n_time-1)))
-
-    # does not rewire first wave of each group
-    temp_ls[[g]][[1]] <- temp_base_ls[[g]]
-
-  } # end: for(g in 1:n_group)
-
-  # precision matrix list
-
-  kappa_ls <- lapply(cont_ls, function(g) {
-    lapply(g, function(omega){
+  # precision matrix
+  kappa_ls <- lapply(cont_base_ls, function(omega) {
 
       # implicit delta, assume variance = 1 for all variables
       kappa <- solve(cov2cor(solve(diag(n_node) - omega)))
@@ -121,36 +85,28 @@ gen_panelGVAR <- function(n_node = 6,
 
       return(kappa)
 
-    })
   })
 
   # beta is the transpose of temp
-  beta_ls <- lapply(temp_ls, function(g) {
-    lapply(g, function(temp){
-      beta <- t(temp)
-      return(beta)
-    })
-  })
+  beta_ls <- lapply(temp_base_ls, t)
 
   # compute PDC
   PDC_ls <- lapply(seq_len(n_group), function(g){
-    lapply(seq_len(n_time-1), function(t){
 
-      kappa <- kappa_ls[[g]][[t]]
+      kappa <- kappa_ls[[g]]
       sigma <- solve(kappa)
-      beta <- beta_ls[[g]][[t]]
-      # PDC <- t(beta_ls[[g]][[t]] / sqrt(diag(solve(kappa_ls[[g]][[t]])) %o% diag(kappa_ls[[g]][[t]]) + beta_ls[[g]][[t]]^2))
+      beta <- beta_ls[[g]]
       PDC <- t(beta / sqrt(diag(sigma) %o% diag(kappa) + beta^2))
 
       return(PDC)
-    }) %>% setNames(paste0("t",seq_len(n_time-1))) # set names t1-3
+
   }) %>% setNames(paste0("g", seq_len(n_group))) # set names g1-3
 
   nets <- list(
     beta = beta_ls,
     PDC = PDC_ls,
     kappa = kappa_ls,
-    omega_zeta_within = cont_ls
+    omega_zeta_within = cont_base_ls
   )
 
   return(nets)
