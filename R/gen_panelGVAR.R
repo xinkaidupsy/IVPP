@@ -28,10 +28,7 @@
 gen_panelGVAR <- function(n_node = 6,
                           n_time = 4,
                           p_rewire = 0.5,
-                          n_group = 1,
-                          mean_trend = 0,
-                          p_rewire_temp = 0,
-                          p_rewire_cont = 0){
+                          n_group = 1){
 
 
   # check inputs ------------------------------------------------------------
@@ -88,14 +85,14 @@ gen_panelGVAR <- function(n_node = 6,
   })
 
   # beta is the transpose of temp
-  beta_ls <- lapply(temp_base_ls, t)
+  beta_base_ls <- lapply(temp_base_ls, t)
 
   # compute PDC
   PDC_ls <- lapply(seq_len(n_group), function(g){
 
       kappa <- kappa_ls[[g]]
       sigma <- solve(kappa)
-      beta <- beta_ls[[g]]
+      beta <- beta_base_ls[[g]]
       PDC <- t(beta / sqrt(diag(sigma) %o% diag(kappa) + beta^2))
 
       return(PDC)
@@ -103,7 +100,7 @@ gen_panelGVAR <- function(n_node = 6,
   }) %>% setNames(paste0("g", seq_len(n_group))) # set names g1-3
 
   nets <- list(
-    beta = beta_ls,
+    beta = beta_base_ls,
     PDC = PDC_ls,
     kappa = kappa_ls,
     omega_zeta_within = cont_base_ls
