@@ -1,6 +1,6 @@
 #' Simulate data for a (multi-group) panelGVAR model
 #'
-#' This function generates a (multi-group) panel GVAR dataset
+#' This function generates data for the input (multi-group) panelGVAR model
 #'
 #' @param n_node number of nodes
 #' @param n_person an integer denoting the sample size of each group, default to 500
@@ -11,37 +11,132 @@
 #' %>%
 #' @importFrom dplyr %>%
 #' @importFrom mvtnorm rmvnorm
+#' @importFrom dplyr bind_rows arrange
 
 # To-dos
 # add PDC list
 sim_panelGVAR <- function(temp_base_ls,
                           beta_base_ls,
-                          cont_base_ls,
                           PDC_base_ls,
+                          cont_base_ls,
                           n_node,
                           n_person = 500,
-                          n_time,
+                          n_time = 3,
                           n_group,
                           mean_trend = 0,
                           p_rewire_temp = 0,
-                          p_rewire_cont = 0){
+                          p_rewire_cont = 0,
+                          save_nets = FALSE){
 
 
-  # Initialization --------------------------------------------------------
 
-  # base networks for each group
-  cont_base_ls <-
-    temp_base_ls <-
-    # list for all networks
-    cont_ls <-
-    temp_ls <-
-    kappa_ls <-
-    PDC_ls <- list()
+  net_ls <- gen_panelGVAR(n_node = 6,
+                          n_time = 4,
+                          p_rewire = 0.5,
+                          n_group = 3)
 
-  # setup default -----------------------------------------------------------
+  PDC_base_ls <- net_ls$PDC
+  cont_base_ls <- net_ls$omega_zeta_within
 
-  # * denotes Hadamard product
-  # beta = sqrt(t(PDC)^2 * (diag(sigma) %o% diag(kappa)) / (1-t(PDC)^2))
+  # set defaults ------------------------------------------------------------
+
+  # need data-generating temporal network to proceed
+  if(missing(temp_base_ls) &
+     missing(beta_base_ls) &
+     missing(PDC_base_ls)){
+    stop("please input the list of temporal networks of all groups
+         to one of temp_base_ls, beta_base_ls, and PDC_base_ls")
+  }
+
+  # need data-generating contemporaneous network to proceed
+  if(missing(cont_base_ls)){
+    stop("please input the list of contemporaneous networks of all groups to cont_base_ls")
+  }
+
+  # n_node
+  if(missing(n_node)){
+    n_node <- cont_base_ls[[1]] %>% nrow
+  }
+
+  # n_groups
+  if(missing(n_group)){
+    n_group <- length(cont_base_ls)
+  }
+
+  # obtain beta
+  if(missing(beta_base_ls)){
+
+    # if temporal networks are available, obtain directly
+    if (!missing(temp_base_ls)) {
+
+      beta_base_ls <- lapply(temp_base_ls, t)
+
+    # if not available, need PDC and contemporaneous network
+    } else if (!missing(PDC_base_ls)) {
+
+      beta_base_ls <- lapply(seq_len(n_group), function(g){
+
+        # PDC
+        PDC <- PDC_base_ls[[g]]
+
+        # obtain kappa from omega_zeta_within
+        omega <- cont_base_ls[[g]]
+        kappa <- solve(cov2cor(solve(diag(n_node) - omega)))
+        kappa[abs(omega) < sqrt(.Machine$double.eps) & !diag(n_node)==1] <- 0
+
+        # sigma is the inverse of kappa
+        sigma <- solve(kappa)
+
+        # calculate beta with sigma, PDC, and kappa
+        beta <- sqrt(t(PDC)^2 * (diag(sigma) %o% diag(kappa)) / (1-t(PDC)^2))
+
+        return(beta)
+
+      }) # end: lapply
+
+    } # end: else if(!missing(PDC_base_ls))
+
+  } # end: if(missing(beta_base_ls))
+
+  # obtain temp_base_ls if missing
+  if(missing(temp_base_ls)){
+
+    # can obtain directly from beta
+    if(!missing(beta_base_ls)){
+      temp_base_ls <- lapply(beta_base_ls, t)
+
+    # or from PDC and cont
+    } else if(!missing(PDC_base_ls)){
+
+      temp_base_ls <- lapply(seq_len(n_group), function(g){
+
+        # PDC
+        PDC <- PDC_base_ls[[g]]
+
+        # obtain kappa from omega_zeta_within
+        omega <- cont_base_ls[[g]]
+        kappa <- solve(cov2cor(solve(diag(n_node) - omega)))
+        kappa[abs(omega) < sqrt(.Machine$double.eps) & !diag(n_node)==1] <- 0
+
+        # sigma is the inverse of kappa
+        sigma <- solve(kappa)
+
+        # calculate beta with sigma, PDC, and kappa
+        beta <- sqrt(t(PDC)^2 * (diag(sigma) %o% diag(kappa)) / (1-t(PDC)^2))
+
+        temp <- t(beta)
+
+        return(temp)
+
+      }) # end: lapply
+
+    } # end: else if(!missing(PDC_base_ls))
+
+  } # end: if(missing(temp_base_ls))
+
+
+  # ----- Initialize means and tool vectors -----
+
 
   # Generate the means (same for all variables in a wave):
   means <- seq_len(n_time) * mean_trend
@@ -56,7 +151,7 @@ sim_panelGVAR <- function(temp_base_ls,
   between <- cov2cor(clusterGeneration::genPositiveDefMat(n_node)$Sigma)
 
 
-  # network for each wave ---------------------------------------------------
+  # ----- network for each wave -----
 
   # initialize lists
   cont_ls <-
@@ -113,7 +208,7 @@ sim_panelGVAR <- function(temp_base_ls,
   }) %>% setNames(paste0("g",seq_len(n_group)))
 
 
-  # generate data -----------------------------------------------------------
+  # ----- generate data -----
 
 
   for (g in 1:n_group) {
@@ -174,6 +269,53 @@ sim_panelGVAR <- function(temp_base_ls,
   # convert list to data.table
   data_merged <- bind_rows(data_long)
 
-  # return data
-  return(data_merged)
+  if (save_nets) {
+
+    # compute kappa for all waves in each group
+    kappa_ls <- lapply(cont_ls, function(g) {
+      lapply(g, function(omega){
+
+        # implicit delta, assume variance = 1 for all variables
+        kappa <- solve(cov2cor(solve(diag(n_node) - omega)))
+        # correct floating error
+        kappa[abs(omega) < sqrt(.Machine$double.eps) & !diag(n_node)==1] <- 0
+
+        return(kappa)
+
+      })
+    })
+
+    # compute PDC
+    PDC_ls <- lapply(seq_len(n_group), function(g){
+
+      lapply(seq_len(n_time - 1), function(t){
+        kappa <- kappa_ls[[g]][[t]] # here kappa of wave t is not used
+        sigma <- solve(kappa)
+        beta <- beta_ls[[g]][[t]]
+        PDC <- t(beta / sqrt(diag(sigma) %o% diag(kappa) + beta^2))
+
+        return(PDC)
+      }) %>% setNames(paste0("t", seq_len(n_time-1)))
+
+    }) %>% setNames(paste0("g", seq_len(n_group))) # set names g1-3
+
+    nets <- list(
+      beta = beta_ls,
+      temporal = temp_ls,
+      PDC = PDC_ls,
+      kappa = kappa_ls,
+      omega_zeta_within = cont_ls
+    )
+    nets_n_data <- list(
+      nets = nets,
+      data = data_merged
+    )
+
+    return(nets_n_data)
+
+  } else {
+    # return data
+    return(data_merged)
+  } # end: if(save_nets)
+
 }

@@ -4,21 +4,10 @@
 \alias{gen_panelGVAR}
 \title{Generate a (multi-group) panelGVAR model}
 \usage{
-gen_panelGVAR(
-  n_node = 6,
-  n_person = 500,
-  n_time = 4,
-  p_rewire = 0.5,
-  n_group = 1,
-  mean_trend = 0,
-  p_rewire_temp = 0,
-  p_rewire_cont = 0
-)
+gen_panelGVAR(n_node = 6, n_time = 4, p_rewire = 0.5, n_group = 1)
 }
 \arguments{
 \item{n_node}{an integer denoting the number of nodes}
-
-\item{n_person}{an integer denoting the sample size}
 
 \item{n_time}{an integer denoting the number of waves}
 

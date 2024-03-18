@@ -33,9 +33,7 @@ gen_panelGVAR <- function(n_node = 6,
 
   # check inputs ------------------------------------------------------------
 
-  if(p_rewire < 0 | p_rewire > 1 |
-     p_rewire_temp < 0 | p_rewire_temp > 1 |
-     p_rewire_cont < 0 | p_rewire_cont > 1){
+  if(p_rewire < 0 | p_rewire > 1){
     stop("probability of rewiring should be between 0 and 1")
   }
 
@@ -101,6 +99,7 @@ gen_panelGVAR <- function(n_node = 6,
 
   nets <- list(
     beta = beta_base_ls,
+    temporal = temp_base_ls,
     PDC = PDC_ls,
     kappa = kappa_ls,
     omega_zeta_within = cont_base_ls
