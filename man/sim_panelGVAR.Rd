@@ -20,13 +20,29 @@ sim_panelGVAR(
 )
 }
 \arguments{
+\item{temp_base_ls}{a list of temporal networks of all groups}
+
+\item{beta_base_ls}{a list of beta matrices of all groups}
+
+\item{PDC_base_ls}{a list of PDC matrices of all groups}
+
+\item{cont_base_ls}{a list of contemporaneous networks of all groups}
+
 \item{n_node}{number of nodes}
 
 \item{n_person}{an integer denoting the sample size of each group, default to 500}
 
-\item{n_time}{number of waves}
+\item{n_time}{number of waves, default to 3}
 
 \item{n_group}{number of groups}
+
+\item{mean_trend}{a numeric value indicating the extent of mean trends in data, default to 0}
+
+\item{p_rewire_temp}{a numeric value between 0 and 1 indicating the extent of non-stationarity in temporal networks, default to 0}
+
+\item{p_rewire_cont}{a numeric value between 0 and 1 indicating the extent of non-stationarity in contemporaneous networks, default to 0}
+
+\item{save_nets}{a logical value indicating whether to save the data-generating networks, default to FALSE}
 }
 \value{
 A list of temporal and contemporaneous networks
