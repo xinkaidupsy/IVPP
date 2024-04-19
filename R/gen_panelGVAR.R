@@ -6,9 +6,6 @@
 #' @param n_time an integer denoting the number of waves
 #' @param n_group an integer denoting the number of groups
 #' @param p_rewire a numeric value between 0-1 denoting the extent of group difference
-#' @param mean_trend a numeric value denoting the extent of mean trends in data
-#' @param p_rewire_temp a numeric value between 0-1 denoting the probability rewiring temporal networks across groups
-#' @param p_rewire_cont a numeric value between 0-1 denoting the probability rewiring temporal networks across groups
 #'
 #' @return A list of beta, PDC, kappa and contemporaneous networks
 #'
@@ -23,6 +20,7 @@
 #' @importFrom bootnet genGGM
 #' @importFrom clusterGeneration genPositiveDefMat
 #' @importFrom dplyr %>%
+
 
 
 gen_panelGVAR <- function(n_node = 6,

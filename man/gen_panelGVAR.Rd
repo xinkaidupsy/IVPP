@@ -14,12 +14,6 @@ gen_panelGVAR(n_node = 6, n_time = 4, p_rewire = 0.5, n_group = 1)
 \item{p_rewire}{a numeric value between 0-1 denoting the extent of group difference}
 
 \item{n_group}{an integer denoting the number of groups}
-
-\item{mean_trend}{a numeric value denoting the extent of mean trends in data}
-
-\item{p_rewire_temp}{a numeric value between 0-1 denoting the probability rewiring temporal networks across groups}
-
-\item{p_rewire_cont}{a numeric value between 0-1 denoting the probability rewiring temporal networks across groups}
 }
 \value{
 A list of beta, PDC, kappa and contemporaneous networks

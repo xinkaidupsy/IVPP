@@ -66,9 +66,19 @@ sim_panelGVAR <- function(temp_base_ls,
     n_node <- cont_base_ls[[1]] %>% nrow
   }
 
+  n_n <- cont_base_ls[[1]] %>% nrow
+  if(n_node != n_n){
+    stop("please specify the correct number of nodes")
+  }
+
   # n_groups
   if(missing(n_group)){
     n_group <- length(cont_base_ls)
+  }
+
+  n_g <- length(cont_base_ls)
+  if(n_group != n_g){
+    stop("please specify the correct number of groups")
   }
 
   # obtain beta
@@ -266,11 +276,12 @@ sim_panelGVAR <- function(temp_base_ls,
       names(data) <- varnames
       data$subject <- (g-1)*(n_person) + seq_len(nrow(data))
       data$time <- t
+      data$group <- g
       data
     })
 
     # Merge data (long format):
-    data_long[[paste0("g", g)]] <- bind_rows(data[[g]]) %>% arrange(subject,time)
+    data_long[[paste0("g", g)]] <- bind_rows(data[[g]]) %>% arrange(subject,time,group)
 
   } # end: for(g in 1:n_group)
 
@@ -326,4 +337,5 @@ sim_panelGVAR <- function(temp_base_ls,
     return(data_merged)
   } # end: if(save_nets)
 
-}
+} # end: sim_panelGVAR
+
