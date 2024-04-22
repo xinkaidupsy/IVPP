@@ -38,42 +38,13 @@
 #' @import tidyr
 #' @import psychonetrics
 
-# # Generate the network
-# net_ls <- gen_panelGVAR(n_node = 6,
-#                         n_time = 4,
-#                         p_rewire = 0.5,
-#                         n_group = 3)
-#
-# # Generate the data
-# data_merged <- sim_panelGVAR(temp_base_ls = net_ls$temporal,
-#                              cont_base_ls = net_ls$omega_zeta_within,
-#                              n_person = 500,
-#                              n_time = 4,
-#                              n_group = 3,
-#                              n_node = 6)
-#
-# vars <- paste0("V",1:6)
-# idvar = "subject"
-# beepvar = "time"
-# groups = "group"
-# standardize = "z"
-# estimator = "FIML"
-#
-# panel_omni(data = data_merged,
-#            vars = paste0("V",1:6),
-#            idvar = "subject",
-#            beepvar = "time",
-#            groups = "group",
-#            net = "temporal",
-#            net_type = "saturated",
-#            estimator = "FIML",
-#            standardize = "z")
 
 # logic:
 # do the omnibus 1
 # if not significant, stop and return no difference
 # if signigicant, omibus 2
 # Do partial pruning for the significant
+# this might not be necessary as partial pruning is exploratory
 
 panel_omni <- function(data,
                        vars,
@@ -110,7 +81,7 @@ panel_omni <- function(data,
   }
 
   # group
-  if(missing(group)){
+  if(missing(groups)){
     stop("specify the group variable")
   }
 
@@ -137,17 +108,17 @@ panel_omni <- function(data,
                            between = "chol",
                            ...) %>% runmodel %>% suppressWarnings
 
+  # estimate the fully-constrained model
+  mod_saturated_bothEq <- mod_saturated %>%
+    groupequal(matrix = "beta") %>%
+    groupequal(matrix = "omega_zeta_within") %>% runmodel %>% suppressWarnings
 
 
+  # model comparisons and save models
   if(net_type == "saturated"){
 
     # model comparisons
     if(constrain == "both"){
-
-      # estimate the fully-constrained model
-      mod_saturated_bothEq <- mod_saturated %>%
-        groupequal(matrix = "beta") %>%
-        groupequal(matrix = "omega_zeta_within") %>% runmodel %>% suppressWarnings
 
       # compare with the free model
       comp <- psychonetrics::compare(free = mod_saturated,
@@ -155,6 +126,18 @@ panel_omni <- function(data,
 
       mod_ls <- list(free = mod_saturated,
                      bothEq = mod_saturated_bothEq)
+
+      # warning if AIC or BIC decreased after constraining equal
+      delta_AIC <- comp["bothEq", "AIC"] - comp["free", "AIC"]
+      delta_BIC <- comp["bothEq", "BIC"] - comp["free", "BIC"]
+
+      if(delta_AIC < 0){
+        warning(cat(paste("AIC decreased after constraining the networks to be equal.",
+                      "\nBe careful if you want to proceed to the partial pruning test")))
+      } else if(delta_BIC < 0){
+        warning(cat(paste("BIC decreased after constraining the networks to be equal.",
+                      "\nBe careful if you want to proceed to the partial pruning test")))
+      }
 
       # end: if(net == "both")
     } else if (constrain == "temporal"){
@@ -172,6 +155,18 @@ panel_omni <- function(data,
                      tempEq = mod_saturated_tempEq,
                      bothEq = mod_saturated_bothEq)
 
+      # warning if AIC or BIC decreased after constraining equal
+      delta_AIC <- comp["bothEq", "AIC"] - comp["free", "AIC"]
+      delta_BIC <- comp["bothEq", "BIC"] - comp["free", "BIC"]
+
+      if(delta_AIC < 0){
+        warning(cat(paste("AIC decreased after constraining the networks to be equal.",
+                          "\nBe careful if you want to proceed to the partial pruning test")))
+      } else if(delta_BIC < 0){
+        warning(cat(paste("BIC decreased after constraining the networks to be equal.",
+                          "\nBe careful if you want to proceed to the partial pruning test")))
+      }
+
     # end: if(net == "temporal")
     } else if (constrain == "contemporaneous"){
 
@@ -185,6 +180,18 @@ panel_omni <- function(data,
       mod_ls <- list(free = mod_saturated,
                      contEq = mod_saturated_contEq,
                      bothEq = mod_saturated_bothEq)
+
+      # warning if AIC or BIC decreased after constraining equal
+      delta_AIC <- comp["bothEq", "AIC"] - comp["free", "AIC"]
+      delta_BIC <- comp["bothEq", "BIC"] - comp["free", "BIC"]
+
+      if(delta_AIC < 0){
+        warning(cat(paste("AIC decreased after constraining the networks to be equal.",
+                          "\nBe careful if you want to proceed to the partial pruning test")))
+      } else if(delta_BIC < 0){
+        warning(cat(paste("BIC decreased after constraining the networks to be equal.",
+                          "\nBe careful if you want to proceed to the partial pruning test")))
+      }
 
     # end: if(net == "contemporaneous")
     } else {
@@ -213,6 +220,18 @@ panel_omni <- function(data,
       mod_ls <- list(free = mod_union,
                      bothEq = mod_union_bothEq)
 
+      # warning if AIC or BIC decreased after constraining equal
+      delta_AIC <- comp["bothEq", "AIC"] - comp["free", "AIC"]
+      delta_BIC <- comp["bothEq", "BIC"] - comp["free", "BIC"]
+
+      if(delta_AIC < 0){
+        warning(cat(paste("AIC decreased after constraining the networks to be equal.",
+                          "\nBe careful if you want to proceed to the partial pruning test")))
+      } else if(delta_BIC < 0){
+        warning(cat(paste("BIC decreased after constraining the networks to be equal.",
+                          "\nBe careful if you want to proceed to the partial pruning test")))
+      }
+
       # end: if(net == "both")
     } else if (constrain == "temporal"){
 
@@ -229,6 +248,18 @@ panel_omni <- function(data,
                      tempEq = mod_union_tempEq,
                      bothEq = mod_union_bothEq)
 
+      # warning if AIC or BIC decreased after constraining equal
+      delta_AIC <- comp["bothEq", "AIC"] - comp["free", "AIC"]
+      delta_BIC <- comp["bothEq", "BIC"] - comp["free", "BIC"]
+
+      if(delta_AIC < 0){
+        warning(cat(paste("AIC decreased after constraining the networks to be equal.",
+                          "\nBe careful if you want to proceed to the partial pruning test")))
+      } else if(delta_BIC < 0){
+        warning(cat(paste("BIC decreased after constraining the networks to be equal.",
+                          "\nBe careful if you want to proceed to the partial pruning test")))
+      }
+
       # end: if(net == "temporal")
     } else if (constrain == "contemporaneous"){
 
@@ -244,6 +275,18 @@ panel_omni <- function(data,
       mod_ls <- list(free = mod_union,
                      contEq = mod_union_contEq,
                      bothEq = mod_union_bothEq)
+
+      # warning if AIC or BIC decreased after constraining equal
+      delta_AIC <- comp["bothEq", "AIC"] - comp["free", "AIC"]
+      delta_BIC <- comp["bothEq", "BIC"] - comp["free", "BIC"]
+
+      if(delta_AIC < 0){
+        warning(cat(paste("AIC decreased after constraining the networks to be equal.",
+                          "\nBe careful if you want to proceed to the partial pruning test")))
+      } else if(delta_BIC < 0){
+        warning(cat(paste("BIC decreased after constraining the networks to be equal.",
+                          "\nBe careful if you want to proceed to the partial pruning test")))
+      }
 
     # end: if(net == "contemporaneous")
     } else {
