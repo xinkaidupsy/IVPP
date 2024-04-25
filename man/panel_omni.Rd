@@ -10,7 +10,7 @@ panel_omni(
   idvar,
   beepvar,
   groups,
-  constrain = c("both", "temporal", "contemporaneous"),
+  test = c("both", "temporal", "contemporaneous"),
   net_type = c("saturated", "sparse"),
   prune_alpha = 0.01,
   estimator = "FIML",
@@ -29,10 +29,10 @@ panel_omni(
 
 \item{groups}{A character string specifying the name of group variable}
 
-\item{constrain}{A character vector specifying the network you want to constrain equal in the omnibus test.
-Specify "both" if you want to constrain on both temporal or contemporaneous networks to be equal across groups.
-Specify "temporal" if you want to constrain the temporal network to be equal.
-Specify "contemporaneous" if you want to constrain the contemporaneous network to be equal.
+\item{test}{A character vector specifying the network you want to test group-equality on in the omnibus test.
+Specify "both" if you want to test on both temporal or contemporaneous networks.
+Specify "temporal" if you want to test only on the temporal network.
+Specify "contemporaneous" if you want to test only on the contemporaneous network.
 See \link{Details} for more information.}
 
 \item{net_type}{A character vector specifying the type of networks to be compared.

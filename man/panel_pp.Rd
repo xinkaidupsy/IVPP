@@ -10,7 +10,7 @@ panel_pp(
   idvar,
   beepvar,
   groups,
-  prune_net = c("both", "temporal", "contemporaneous"),
+  test = c("both", "temporal", "contemporaneous"),
   prune_alpha = 0.01,
   estimator = "FIML",
   standardize = c("none", "z", "quantile"),
@@ -28,10 +28,14 @@ panel_pp(
 
 \item{groups}{A character string specifying the name of group variable}
 
-\item{prune_net}{A character vector specifying the network you want to partial prune on.
-Specify "both" if you want to partial prune both temporal or contemporaneous networks.
-Specify "temporal" if you want to partial prune the temporal network.
-Specify "contemporaneous" if you want to partial prune the contemporaneous network.}
+\item{test}{A character vector specifying the network you want to run the partial prune test on.
+Specify "both" if you want to test on both temporal or contemporaneous networks.
+Specify "temporal" if you want to test only on the temporal network.
+Specify "contemporaneous" if you want to test only on the contemporaneous network.
+See \link{Details} for more information.
+Specify "sparse" if you want to estimate and compare the pruned networks.}
+
+\item{prune_alpha}{A numeric value specifying the alpha level for the partial pruning.}
 
 \item{estimator}{A character string specifying the estimator to be used. Must be "FIML"}
 
@@ -42,17 +46,17 @@ and "quantile" for a non-parametric transformation to the quantiles of the margi
 \item{...}{Additional arguments to be passed to the \code{\link[psychonetrics]{dlvm1}} function}
 }
 \value{
-The results of comparison between models of different levels of constraints
+A list of temporal, beta, and contemporaneous networks for each group
 }
 \description{
 This function implements the IVPP algorithm to compare networks in the multi-group panel GVAR models.
 The IVPP algorithm is a two-step procedure that first conducts an omnibus test of network difference and then performs partial pruning for the specific edge-level differences.
-This function returns the results of the omnibus test.
+This function returns the results of the partial pruning test.
 Currently only supports the comparison of temporal and contemporaneous networks.
 }
 \details{
-The comparison between the fully unconstrained (free) model and tempEq model is a test for group equality in temporal networks.
-The comparison between fully constrained model (bothEq) and tempEq is a test for group equality in contemporaneous networks.
-Similarly, the comparison between the free model and contEq model is a test for group equality in contemporaneous networks,
-and the comparison between bothEq and contEq is a test for group equality in temporal networks.
+The partial pruning test is a follow-up test after the omnibus test.
+It first estimates a model with significance pruning for each group separately.
+Then it estimates a union model in which each edge that was included in at least one of the groups is included, and all edges are constrained equal across groups.
+Then, in a stepwise fashion: compute modification indices for included edges in each dataset with equality constraints (this modification index indicates the expected improvement in fit if the edge weight is freely estimated in that particular dataset) and sum these for all possible parameters, such that a single index is obtained for each edge that is included and is currently constrained to be equal across datasets. Free this parameter across the datasets if this improves BIC, and repeat this process until BIC can no longer be improved. 4. Remove all edge weights across all datasets that are not significant at alpha = 0.05 and estimated the final model.
 }
