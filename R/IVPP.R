@@ -19,7 +19,9 @@
 #' @param net_type A character vector specifying the type of networks to be compared.
 #' Specify "saturated" if you want to estimate and compare the saturated networks.
 #' Specify "sparse" if you want to estimate and compare the pruned networks.
-#' @param prune_alpha A numeric value specifying the alpha level for the pruning (if net_type is sparse).
+#' @param prune_alpha A numeric value specifying the alpha level for the pruning (if net_type = "sparse").
+#' @param partial_prune A logical value specifying whether to conduct partial pruning test or not.
+#' @param p_prune_alpha A numeric value specifying the alpha level for the partial pruning (if partial_prune = TRUE).
 #' @param estimator A character string specifying the estimator to be used. Must be "FIML"
 #' @param standardize A character string specifying the type of standardization to be used.
 #' "none" (default) for no standardization, "z" for z-scores,
@@ -32,13 +34,13 @@
 #' Similarly, the comparison between the free model and contEq model is a test for group equality in contemporaneous networks,
 #' and the comparison between bothEq and contEq is a test for group equality in temporal networks.
 #'
-#' @return The results of comparison between models of different levels of constraints
+#' @return A list containing the results of the omnibus test and the partial pruning test of IVPP.
 #'
 #' @import dplyr
 #' @import tidyr
 #' @import psychonetrics
 
-panel_omni <- function(data,
+IVPP_panel <- function(data,
                        vars,
                        idvar,
                        beepvar,
@@ -47,12 +49,15 @@ panel_omni <- function(data,
                        test = c("both", "temporal", "contemporaneous"),
                        # vsModel = c("bothEq", "free"),
                        net_type = c("saturated", "sparse"),
+                       partial_prune,
                        prune_alpha = 0.01,
+                       p_prune_alpha = 0.01,
                        estimator = "FIML",
                        standardize = c("none", "z","quantile"),
                        ...){
 
-  # ----- check missing arguments -----
+  # ----- argument check -----
+
   if(missing(data)){
     stop("data is missing")
   }
@@ -91,12 +96,21 @@ panel_omni <- function(data,
     stop("network_type is either 'saturated or 'sparse'")
   }
 
+  # partial_prune
+  if(missing(partial_prune)){
+    stop("specify whether to conduct partial pruning or not")
+  }
+
+  if(!is.logical(partial_prune)){
+    stop("partial_prune should be a logical value")
+  }
+
   # estimator
   if (estimator != "FIML"){
     stop("Only 'FIML' supported currently.")
   }
 
-  # ----- saturated -----
+  # ----- omnibus test -----
 
   # estimate the saturated free model
   mod_saturated <- ml_gvar(data_merged,
@@ -110,7 +124,7 @@ panel_omni <- function(data,
                            ...) %>% runmodel %>% suppressWarnings
 
 
-  # model comparisons and save models
+  # omnibus test for saturated & sparse networks
   if(net_type == "saturated"){
 
     # estimate the fully-constrained model
@@ -374,144 +388,23 @@ panel_omni <- function(data,
   } # end: else (net_type == "pruned")
 
   # return the comparison results
-
-  # tab <- list(
-  #   vs_free = tab_vs_free,
-  #   vs_bothEq = tab_vs_bothEq
-  # )
+  tab <- list(
+    vs_free = tab_vs_free,
+    vs_bothEq = tab_vs_bothEq
+  )
 #
 #   class(tab_vs_free) <- class(tab_vs_bothEq) <- c("panel_omni", "data.frame")
 
-  # warn exploratory pruning
-  cat("\nBe careful to proceed with partial pruning if group-equality constraints decreased AIC or BIC")
-
-  return(list(
-    vs_free = tab_vs_free,
-    vs_bothEq = tab_vs_bothEq
-  ))
-
-} # end: panel_omni
-
-
-#' The partial_pruning test of the invariance partial pruning (IVPP) algorithm for multi-group panel GVAR models
-#'
-#' This function implements the IVPP algorithm to compare networks in the multi-group panel GVAR models.
-#' The IVPP algorithm is a two-step procedure that first conducts an omnibus test of network difference and then performs partial pruning for the specific edge-level differences.
-#' This function returns the results of the partial pruning test.
-#' Currently only supports the comparison of temporal and contemporaneous networks.
-#'
-#' @param data A data frame containing the long-formated panel data
-#' @param vars A character vector of variable names
-#' @param idvar A character string specifying subject IDs
-#' @param beepvar A character string specifying the name of wave (time) variable
-#' @param groups A character string specifying the name of group variable
-#' @param test A character vector specifying the network you want to run the partial prune test on.
-#' Specify "both" if you want to test on both temporal or contemporaneous networks.
-#' Specify "temporal" if you want to test only on the temporal network.
-#' Specify "contemporaneous" if you want to test only on the contemporaneous network.
-#' See \link{Details} for more information.
-#' Specify "sparse" if you want to estimate and compare the pruned networks.
-#' @param prune_alpha A numeric value specifying the alpha level for the partial pruning.
-#' @param estimator A character string specifying the estimator to be used. Must be "FIML"
-#' @param standardize A character string specifying the type of standardization to be used.
-#' "none" (default) for no standardization, "z" for z-scores,
-#' and "quantile" for a non-parametric transformation to the quantiles of the marginal standard normal distribution.
-#' @param ... Additional arguments to be passed to the \code{\link[psychonetrics]{dlvm1}} function
-#'
-#' @details
-#' The partial pruning test is a follow-up test after the omnibus test.
-#' It first estimates a model with significance pruning for each group separately.
-#' Then it estimates a union model in which each edge that was included in at least one of the groups is included, and all edges are constrained equal across groups.
-#' Then, in a stepwise fashion: compute modification indices for included edges in each dataset with equality constraints (this modification index indicates the expected improvement in fit if the edge weight is freely estimated in that particular dataset) and sum these for all possible parameters, such that a single index is obtained for each edge that is included and is currently constrained to be equal across datasets. Free this parameter across the datasets if this improves BIC, and repeat this process until BIC can no longer be improved. 4. Remove all edge weights across all datasets that are not significant at alpha = 0.05 and estimated the final model.
-#' @return A list of temporal, beta, and contemporaneous networks for each group
-#'
-#' @import dplyr
-#' @import tidyr
-#' @import psychonetrics
-
-panel_pp <- function(data,
-                     vars,
-                     idvar,
-                     beepvar,
-                     groups,
-                     # test = c("omnibus", "partial_prune"),
-                     test = c("both", "temporal", "contemporaneous"),
-                     # save_matrix = c("temporal", "beta", "contemporaneous"),
-                     # vsModel = c("bothEq", "free"),
-                     prune_alpha = 0.01,
-                     estimator = "FIML",
-                     standardize = c("none", "z","quantile"),
-                     ...){
-
-  # ----- check missing arguments -----
-  if(missing(data)){
-    stop("data is missing")
-  }
-
-  # vars
-  if(missing(vars)){
-    stop("specify the variable names")
-  }
-
-  # id
-  if(missing(idvar)){
-    stop("specify the id variable")
-  }
-
-  # beep
-  if(missing(beepvar)){
-    stop("specify the beep (wave) variable")
-  }
-
-  # group
-  if(missing(groups)){
-    stop("specify the group variable")
-  }
-
-  # test
-  if(!(test %in% c("both", "temporal", "contemporaneous"))){
-    stop("test should be either on 'both', 'temporal', or 'contemporaneous'")
-  }
-
-  # # save_matrix
-  # if(!(save_matrix %in% c("PDC", "beta", "contemporaneous"))){
-  #   stop("specify either 'PDC', 'beta', 'contemporaneous' for save_matrix")
-  # }
-  #
-  # if("temporal" %in% save_matrix){
-  #   save_matrix <- gsub("temporal", "PDC", save_matrix)
-  # }
-  #
-  # if("contemporaneous" %in% save_matrix){
-  #   save_matrix <- gsub("contemporaneous", "omega_zeta_within", save_matrix)
-  # }
-
-  # estimator
-  if (estimator != "FIML"){
-    stop("Only 'FIML' supported currently.")
-  }
-
   # ----- partial pruning -----
 
-  # estimate the saturated free model
-  mod_saturated <- ml_gvar(data_merged,
-                           vars = vars,
-                           idvar = idvar,
-                           beepvar = beepvar,
-                           groups = groups,
-                           standardize = standardize,
-                           estimator = estimator,
-                           between = "chol",
-                           ...) %>% runmodel %>% suppressWarnings
-
-
+  if (partial_prune) {
 
     # model comparisons
     if(test == "both"){
 
       mod_pp <- mod_saturated %>%
-        partialprune(matrices = "beta", alpha = prune_alpha) %>%
-        partialprune(matrices = "omega_zeta_within", alpha = prune_alpha) %>% runmodel %>% suppressWarnings
+        partialprune(matrices = "beta", alpha = p_prune_alpha) %>%
+        partialprune(matrices = "omega_zeta_within", alpha = p_prune_alpha) %>% runmodel %>% suppressWarnings
 
       # save networks
       save_matrix = c("PDC", "beta", "omega_zeta_within")
@@ -530,7 +423,7 @@ panel_pp <- function(data,
     } else if (test == "temporal"){
 
       mod_pp <- mod_saturated %>%
-        partialprune(matrices = "beta", alpha = prune_alpha) %>% runmodel %>% suppressWarnings
+        partialprune(matrices = "beta", alpha = p_prune_alpha) %>% runmodel %>% suppressWarnings
 
       # save networks
       save_matrix = c("PDC", "beta", "omega_zeta_within")
@@ -554,7 +447,7 @@ panel_pp <- function(data,
     } else if (test == "contemporaneous"){
 
       mod_pp <- mod_saturated %>%
-        partialprune(matrices = "omega_zeta_within", alpha = prune_alpha) %>% runmodel %>% suppressWarnings
+        partialprune(matrices = "omega_zeta_within", alpha = p_prune_alpha) %>% runmodel %>% suppressWarnings
 
       # save networks
       save_matrix = c("PDC", "beta", "omega_zeta_within")
@@ -575,11 +468,17 @@ panel_pp <- function(data,
 
     } # end: if(test == xxx)
 
+  } # end if (partial_prune)
   # warn exploratory pruning
-  cat("\nBe careful to interpret the results of partial pruning if the omnibus test favored the model with group equality constraints.")
+  cat("\nResults of partial pruning are explratory. Be careful to interpret if group-equality constraints decreased AIC or BIC")
 
-  return(mat)
+  return(list(
+    omnibus = tab,
+    partial_prune = mat
+  ))
 
-} # end: panel_pp
+} # end: IVPP_panel
+
+
 
 

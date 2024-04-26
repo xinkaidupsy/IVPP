@@ -107,16 +107,6 @@ gen_panelGVAR <- function(n_node = 6,
 
 }
 
-#' Rewire Networks
-#'
-#' This function takes in a network and rewire it with probability p
-#'
-#' @param net the network matrix that you want to rewire
-#' @param directed logicals. Write TRUE if the input net is a directed network and FALSE otherwise
-#' @param p probability of rewiring
-#'
-#' @return A network rewired from the input
-#'
 
 rewire <- function(net, p = 0, directed){
   net <- as.matrix(net)
