@@ -41,7 +41,11 @@ See \link{Details} for more information.}
 Specify "saturated" if you want to estimate and compare the saturated networks.
 Specify "sparse" if you want to estimate and compare the pruned networks.}
 
-\item{prune_alpha}{A numeric value specifying the alpha level for the pruning (if net_type is sparse).}
+\item{partial_prune}{A logical value specifying whether to conduct partial pruning test or not.}
+
+\item{prune_alpha}{A numeric value specifying the alpha level for the pruning (if net_type = "sparse").}
+
+\item{p_prune_alpha}{A numeric value specifying the alpha level for the partial pruning (if partial_prune = TRUE).}
 
 \item{estimator}{A character string specifying the estimator to be used. Must be "FIML"}
 
@@ -52,7 +56,7 @@ and "quantile" for a non-parametric transformation to the quantiles of the margi
 \item{...}{Additional arguments to be passed to the \code{\link[psychonetrics]{dlvm1}} function}
 }
 \value{
-The results of comparison between models of different levels of constraints
+A list containing the results of the omnibus test and the partial pruning test of IVPP.
 }
 \description{
 This function implements the IVPP algorithm to compare networks in the multi-group panel GVAR models.
