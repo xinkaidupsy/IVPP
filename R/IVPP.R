@@ -3,8 +3,7 @@
 #'
 #' This function implements the IVPP algorithm to compare networks in the multi-group panel GVAR models.
 #' The IVPP algorithm is a two-step procedure that first conducts an omnibus test of network difference and then performs partial pruning for the specific edge-level differences.
-#' This function returns the results of the omnibus test.
-#' Currently only supports the comparison of temporal and contemporaneous networks.
+#' Currently supports the comparison of temporal and contemporaneous networks.
 #'
 #' @param data A data frame containing the long-formated panel data
 #' @param vars A character vector of variable names
@@ -34,7 +33,7 @@
 #' Similarly, the comparison between the free model and contEq model is a test for group equality in contemporaneous networks,
 #' and the comparison between bothEq and contEq is a test for group equality in temporal networks.
 #'
-#' @return A list containing the results of the omnibus test and the partial pruning test of IVPP.
+#' @return A list containing the results of IVPP and networks of all groups.
 #'
 #' @import dplyr
 #' @import tidyr

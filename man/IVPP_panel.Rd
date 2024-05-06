@@ -56,13 +56,12 @@ and "quantile" for a non-parametric transformation to the quantiles of the margi
 \item{...}{Additional arguments to be passed to the \code{\link[psychonetrics]{dlvm1}} function}
 }
 \value{
-A list containing the results of the omnibus test and the partial pruning test of IVPP.
+A list containing the results of IVPP and networks of all groups.
 }
 \description{
 This function implements the IVPP algorithm to compare networks in the multi-group panel GVAR models.
 The IVPP algorithm is a two-step procedure that first conducts an omnibus test of network difference and then performs partial pruning for the specific edge-level differences.
-This function returns the results of the omnibus test.
-Currently only supports the comparison of temporal and contemporaneous networks.
+Currently supports the comparison of temporal and contemporaneous networks.
 }
 \details{
 The comparison between the fully unconstrained (free) model and tempEq model is a test for group equality in temporal networks.
