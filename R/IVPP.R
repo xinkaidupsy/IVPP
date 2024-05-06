@@ -421,7 +421,9 @@ IVPP_panel <- function(data,
       # end: if(test == "both")
     } else if (test == "temporal"){
 
-      mod_pp <- mod_saturated %>%
+      browser()
+
+      mod_pp <- mod_saturated_contEq %>%
         partialprune(matrices = "beta", alpha = p_prune_alpha) %>% runmodel %>% suppressWarnings
 
       # save networks
@@ -445,7 +447,7 @@ IVPP_panel <- function(data,
       # end: if(test == "temporal")
     } else if (test == "contemporaneous"){
 
-      mod_pp <- mod_saturated %>%
+      mod_pp <- mod_saturated_tempEq %>%
         partialprune(matrices = "omega_zeta_within", alpha = p_prune_alpha) %>% runmodel %>% suppressWarnings
 
       # save networks
