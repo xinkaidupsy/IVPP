@@ -604,15 +604,15 @@ IVPP_ts <- function(data,
   # ----- omnibus test -----
 
   # estimate the saturated free model
-  mod_saturated <- ml_gvar(data,
-                           vars = vars,
-                           idvar = idvar,
-                           beepvar = beepvar,
-                           groups = groups,
-                           standardize = standardize,
-                           estimator = estimator,
-                           between = "chol",
-                           ...) %>% runmodel %>% suppressWarnings
+  mod_saturated <- gvar(data,
+                        vars = vars,
+                        idvar = idvar,
+                        beepvar = beepvar,
+                        groups = groups,
+                        standardize = standardize,
+                        estimator = estimator,
+                        between = "chol",
+                        ...) %>% runmodel %>% suppressWarnings
 
 
   # omnibus test for saturated & sparse networks
