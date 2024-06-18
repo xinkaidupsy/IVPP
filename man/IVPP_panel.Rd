@@ -12,7 +12,7 @@ IVPP_panel(
   groups,
   test = c("both", "temporal", "contemporaneous"),
   net_type = c("saturated", "sparse"),
-  partial_prune,
+  partial_prune = FALSE,
   prune_alpha = 0.01,
   p_prune_alpha = 0.01,
   estimator = "FIML",
@@ -21,7 +21,7 @@ IVPP_panel(
 )
 }
 \arguments{
-\item{data}{A data frame containing the long-formated panel data}
+\item{data}{A data frame containing the long-formatted panel data}
 
 \item{vars}{A character vector of variable names}
 
@@ -31,13 +31,13 @@ IVPP_panel(
 
 \item{groups}{A character string specifying the name of group variable}
 
-\item{test}{A character vector specifying the network you want to test group-equality on in the omnibus test.
+\item{test}{A character vector specifying the network you want to test group-equality on in the global invariance test.
 Specify "both" if you want to test on both temporal or contemporaneous networks.
 Specify "temporal" if you want to test only on the temporal network.
 Specify "contemporaneous" if you want to test only on the contemporaneous network.
-See \link{Details} for more information.}
+See the Details section for more information.}
 
-\item{net_type}{A character vector specifying the type of networks to be compared.
+\item{net_type}{A character vector specifying the type of networks to be compared in the global test.
 Specify "saturated" if you want to estimate and compare the saturated networks.
 Specify "sparse" if you want to estimate and compare the pruned networks.}
 
@@ -59,8 +59,8 @@ and "quantile" for a non-parametric transformation to the quantiles of the margi
 A list containing the results of IVPP and networks of all groups.
 }
 \description{
-This function implements the IVPP algorithm to compare networks in the multi-group panel GVAR models.
-The IVPP algorithm is a two-step procedure that first conducts an omnibus test of network difference and then performs partial pruning for the specific edge-level differences.
+This function implements the IVPP algorithm to compare networks in the multi-group panelGVAR models.
+The IVPP algorithm is a two-step procedure that first conducts an global invariance test of network difference and then performs partial pruning for the specific edge-level differences.
 Currently supports the comparison of temporal and contemporaneous networks.
 }
 \details{

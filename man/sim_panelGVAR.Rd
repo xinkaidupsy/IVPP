@@ -46,7 +46,6 @@ sim_panelGVAR(
 }
 \value{
 A list of temporal and contemporaneous networks
-%>%
 }
 \description{
 This function generates data for the input (multi-group) panelGVAR model
