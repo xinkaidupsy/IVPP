@@ -37,7 +37,7 @@
 #'
 #' @import dplyr
 #' @import psychonetrics
-#' @export IVPP_panel
+#' @export IVPP_panelgvar
 
 IVPP_panelgvar <- function(data,
                        vars,
@@ -527,7 +527,7 @@ IVPP_panelgvar <- function(data,
 #'
 #' @import dplyr
 #' @import psychonetrics
-#' @export IVPP_panel
+#' @export IVPP_tsgvar
 
 IVPP_tsgvar <- function(data,
                     vars,
