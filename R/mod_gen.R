@@ -3,7 +3,6 @@
 #' This function generates a (multi-group) panel GVAR model. Currently generating temporal and contemporaneous networks
 #'
 #' @param n_node an integer denoting the number of nodes
-#' @param n_time an integer denoting the number of waves
 #' @param n_group an integer denoting the number of groups
 #' @param p_rewire a numeric value between 0-1 denoting the extent of group difference
 #'
@@ -24,7 +23,6 @@
 
 
 gen_panelGVAR <- function(n_node = 6,
-                          n_time = 4,
                           p_rewire = 0.5,
                           n_group = 1){
 
@@ -107,47 +105,12 @@ gen_panelGVAR <- function(n_node = 6,
 
 }
 
-
-rewire <- function(net, p = 0, directed){
-  net <- as.matrix(net)
-  rownames(net) <- colnames(net) <- NULL
-  if (missing(directed)){
-    directed <- !all(net == t(net))
-  }
-
-  if (directed){
-    edges <- c(net)
-  } else {
-    edges <- net[lower.tri(net,diag=FALSE)]
-  }
-
-  n_edge <- length(edges)
-
-  for (i in which(edges!=0 & stats::runif(n_edge) < p)){
-    rewire_to <- sample(seq_len(n_edge)[-i],1)
-    edge1 <- edges[i]
-    edge2 <- edges[rewire_to]
-    edges[i] <- edge2
-    edges[rewire_to] <- edge1
-  }
-
-  if (directed){
-    net[] <- edges
-  } else {
-    net[lower.tri(net,diag=FALSE)] <- edges
-    net[upper.tri(net,diag=FALSE)] <-  t(net)[upper.tri(net,diag=FALSE)]
-  }
-
-  return(net)
-}
-
 #' Generate time-series GVAR model for multiple (heterogeneous) individuals
 #'
 #' This function generates time-series GVAR model for multiple individuals that demonstrates difference or simularity.
 #' Currently generating temporal and contemporaneous networks
 #'
 #' @param n_node an integer denoting the number of nodes
-#' @param n_time an integer denoting the number of measurements
 #' @param n_persons an integer denoting the number of individuals to generate tsGVAR for
 #' @param p_rewire a numeric value between 0-1 denoting the extent of individual difference
 #'
@@ -168,7 +131,6 @@ rewire <- function(net, p = 0, directed){
 
 
 gen_tsGVAR <- function(n_node = 6,
-                       n_time = 4,
                        p_rewire = 0.5,
                        n_persons = 1){
 
@@ -244,7 +206,7 @@ gen_tsGVAR <- function(n_node = 6,
     temporal = temp_base_ls,
     PDC = PDC_ls,
     kappa = kappa_ls,
-    omega_zeta_within = cont_base_ls
+    omega_zeta = cont_base_ls
   )
 
   return(nets)

@@ -39,7 +39,7 @@
 #' @import psychonetrics
 #' @export IVPP_panel
 
-IVPP_panel <- function(data,
+IVPP_panelgvar <- function(data,
                        vars,
                        idvar,
                        beepvar,
@@ -422,8 +422,6 @@ IVPP_panel <- function(data,
       # end: if(test == "both")
     } else if (test == "temporal"){
 
-      browser()
-
       mod_pp <- mod_saturated_contEq %>%
         partialprune(matrices = "beta",
                      alpha = p_prune_alpha,
@@ -499,9 +497,9 @@ IVPP_panel <- function(data,
 #'
 #' @param data A data frame containing the long-formatted panel data
 #' @param vars A character vector of variable names
-#' @param idvar A character string specifying subject IDs
-#' @param beepvar A character string specifying the name of wave (time) variable
-#' @param groups A character string specifying the name of group variable
+#' @param idvar A character string specifying the IDs of subjects you want to compare
+#' @param dayvar A character string specifying the name of day variable
+#' @param beepvar A character string specifying the name of variable indicating the measurement number at each day
 #' @param test A character vector specifying the network you want to test group-equality on in the global invariance test.
 #' Specify "both" if you want to test on both temporal or contemporaneous networks.
 #' Specify "temporal" if you want to test only on the temporal network.
@@ -531,11 +529,11 @@ IVPP_panel <- function(data,
 #' @import psychonetrics
 #' @export IVPP_panel
 
-IVPP_ts <- function(data,
+IVPP_tsgvar <- function(data,
                     vars,
                     idvar,
+                    dayvar,
                     beepvar,
-                    groups,
                     # test = c("omnibus", "partial_prune"),
                     test = c("both", "temporal", "contemporaneous"),
                     # vsModel = c("bothEq", "free"),
@@ -558,19 +556,31 @@ IVPP_ts <- function(data,
     stop("specify the variable names")
   }
 
-  # id
-  if(missing(idvar)){
-    stop("specify the id variable")
+  # Add day if missing:
+  if (missing(dayvar)){
+
+    dayvar <- "day"
+    data[[dayvar]] <- 1
+
+  } else if (!is.character(dayvar) || length(dayvar) != 1 || !dayvar %in% names(data)){
+
+    stop("'dayvar' must be a string indicating the name of day variable in the data.")
+
   }
 
-  # beep
-  if(missing(beepvar)){
-    stop("specify the beep (wave) variable")
-  }
+  # Add beep if missing:
+  if (missing(beepvar)){
 
-  # group
-  if(missing(groups)){
-    stop("specify the group variable")
+    beepvar <- "beep"
+    data[[beepvar]] <- ave(seq_len(nrow(data)),
+                           data[[idvar]],
+                           data[[dayvar]],
+                           FUN = seq_along)
+
+  } else if (!is.character(beepvar) || length(beepvar) != 1 || !beepvar %in% names(data)){
+
+    stop("'beepvar' must be a string indicating the name of beep variable in the data.")
+
   }
 
   # test
@@ -606,14 +616,12 @@ IVPP_ts <- function(data,
   # estimate the saturated free model
   mod_saturated <- gvar(data,
                         vars = vars,
-                        idvar = idvar,
                         beepvar = beepvar,
-                        groups = groups,
+                        dayvar = dayvar,
+                        groups = idvar,
                         standardize = standardize,
                         estimator = estimator,
-                        between = "chol",
                         ...) %>% runmodel %>% suppressWarnings
-
 
   # omnibus test for saturated & sparse networks
   if(net_type == "saturated"){
@@ -621,7 +629,7 @@ IVPP_ts <- function(data,
     # estimate the fully-constrained model
     mod_saturated_bothEq <- mod_saturated %>%
       groupequal(matrix = "beta") %>%
-      groupequal(matrix = "omega_zeta_within") %>% runmodel %>% suppressWarnings
+      groupequal(matrix = "omega_zeta") %>% runmodel %>% suppressWarnings
 
     # model comparisons
     if(test == "both"){
@@ -664,7 +672,7 @@ IVPP_ts <- function(data,
 
       # estimate the model that constrains contemporaneous networks to be equal
       mod_saturated_contEq <- mod_saturated %>%
-        groupequal(matrix = "omega_zeta_within") %>% runmodel %>% suppressWarnings
+        groupequal(matrix = "omega_zeta") %>% runmodel %>% suppressWarnings
 
       # compare with the free model
       comp_vs_free <- psychonetrics::compare(free = mod_saturated,
@@ -707,7 +715,7 @@ IVPP_ts <- function(data,
 
       # estimate the model that constrains contemporaneous networks to be equal
       mod_saturated_contEq <- mod_saturated %>%
-        groupequal(matrix = "omega_zeta_within") %>% runmodel %>% suppressWarnings
+        groupequal(matrix = "omega_zeta") %>% runmodel %>% suppressWarnings
 
       # compare with the free model
       comp_vs_free <- psychonetrics::compare(free = mod_saturated,
@@ -752,7 +760,7 @@ IVPP_ts <- function(data,
     # the fully-constrained union model
     mod_union_bothEq <- mod_union %>%
       groupequal(matrix = "beta") %>%
-      groupequal(matrix = "omega_zeta_within") %>% runmodel %>% suppressWarnings
+      groupequal(matrix = "omega_zeta") %>% runmodel %>% suppressWarnings
 
     # model comparisons
     if(test == "both"){
@@ -795,7 +803,7 @@ IVPP_ts <- function(data,
 
       # estimate the model that constrains contemporaneous networks to be equal
       mod_union_contEq <- mod_union %>%
-        groupequal(matrix = "omega_zeta_within") %>% runmodel %>% suppressWarnings
+        groupequal(matrix = "omega_zeta") %>% runmodel %>% suppressWarnings
 
       # compare with the free model
       comp_vs_free <- psychonetrics::compare(free = mod_union,
@@ -838,7 +846,7 @@ IVPP_ts <- function(data,
 
       # estimate the model that constrains contemporaneous networks to be equal
       mod_union_contEq <- mod_union %>%
-        groupequal(matrix = "omega_zeta_within") %>% runmodel %>% suppressWarnings
+        groupequal(matrix = "omega_zeta") %>% runmodel %>% suppressWarnings
 
       # compare with the free model
       comp_vs_free <- psychonetrics::compare(free = mod_union,
@@ -894,12 +902,12 @@ IVPP_ts <- function(data,
     if(test == "both"){
 
       mod_pp <- mod_saturated %>%
-        partialprune(matrices = c("beta", "omega_zeta_within"),
+        partialprune(matrices = c("beta", "omega_zeta"),
                      alpha = p_prune_alpha, return = "partialprune") %>%
         runmodel %>% suppressWarnings
 
       # save networks
-      save_matrix = c("PDC", "beta", "omega_zeta_within")
+      save_matrix = c("PDC", "beta", "omega_zeta")
 
       mat <- lapply(save_matrix, function(m){
         m <- getmatrix(mod_pp, m)
@@ -907,14 +915,12 @@ IVPP_ts <- function(data,
       }) %>% setNames(save_matrix)
 
       names(mat) <- gsub("PDC", "temporal", names(mat))
-      names(mat) <- gsub("omega_zeta_within", "contemporaneous", names(mat))
+      names(mat) <- gsub("omega_zeta", "contemporaneous", names(mat))
 
 
 
       # end: if(test == "both")
     } else if (test == "temporal"){
-
-      browser()
 
       mod_pp <- mod_saturated_contEq %>%
         partialprune(matrices = "beta",
@@ -923,7 +929,7 @@ IVPP_ts <- function(data,
         runmodel %>% suppressWarnings
 
       # save networks
-      save_matrix = c("PDC", "beta", "omega_zeta_within")
+      save_matrix = c("PDC", "beta", "omega_zeta")
 
       mat <- lapply(save_matrix, function(m){
         m <- getmatrix(mod_pp, m)
@@ -931,7 +937,7 @@ IVPP_ts <- function(data,
       }) %>% setNames(save_matrix)
 
       names(mat) <- gsub("PDC", "temporal", names(mat))
-      names(mat) <- gsub("omega_zeta_within", "contemporaneous", names(mat))
+      names(mat) <- gsub("omega_zeta", "contemporaneous", names(mat))
 
       # for the convenience of interpretation, correct the contemp of groups other than g1
       for(g in 2:length(mat$contemporaneous)){
@@ -944,13 +950,13 @@ IVPP_ts <- function(data,
     } else if (test == "contemporaneous"){
 
       mod_pp <- mod_saturated_tempEq %>%
-        partialprune(matrices = "omega_zeta_within",
+        partialprune(matrices = "omega_zeta",
                      alpha = p_prune_alpha,
                      return = "partialprune") %>%
         runmodel %>% suppressWarnings
 
       # save networks
-      save_matrix = c("PDC", "beta", "omega_zeta_within")
+      save_matrix = c("PDC", "beta", "omega_zeta")
 
       mat <- lapply(save_matrix, function(m){
         m <- getmatrix(mod_pp, m)
@@ -958,7 +964,7 @@ IVPP_ts <- function(data,
       }) %>% setNames(save_matrix)
 
       names(mat) <- gsub("PDC", "temporal", names(mat))
-      names(mat) <- gsub("omega_zeta_within", "contemporaneous", names(mat))
+      names(mat) <- gsub("omega_zeta", "contemporaneous", names(mat))
 
       # for the convenience of interpretation, correct the temp and beta of groups other than g1
       for(g in 2:length(mat$temporal)){
@@ -980,5 +986,5 @@ IVPP_ts <- function(data,
     partial_prune = mat
   ))
 
-} # end: IVPP_panel
+} # end: IVPP_tsgvar
 

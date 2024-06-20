@@ -2,11 +2,13 @@
 
 export(IVPP_panel)
 export(gen_panelGVAR)
+export(gen_tsGVAR)
 export(sim_panelGVAR)
 import(bootnet)
 import(clusterGeneration)
 import(dplyr)
 import(mvtnorm)
 import(psychonetrics)
+importFrom(graphicalVAR,graphicalVARsim)
 importFrom(stats,cov2cor)
 importFrom(stats,setNames)
