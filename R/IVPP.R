@@ -76,6 +76,10 @@ IVPP_panelgvar <- function(data,
     stop("specify the beep (wave) variable")
   }
 
+  if (!is.numeric(data[[beepvar]])){
+    stop("'beepvar' is not numeric")
+  }
+
   # group
   if(missing(groups)){
     stop("specify the group variable")
