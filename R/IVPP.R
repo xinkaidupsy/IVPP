@@ -928,7 +928,8 @@ IVPP_tsgvar <- function(data,
       # end: if(test == "both")
     } else if (test == "temporal"){
 
-      mod_pp <- mod_saturated_contEq %>%
+      mod_pp <- mod_saturated %>%
+        groupequal(matrix = "omega_zeta")%>%
         partialprune(matrices = "beta",
                      alpha = p_prune_alpha,
                      return = "partialprune") %>%
