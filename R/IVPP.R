@@ -426,7 +426,8 @@ IVPP_panelgvar <- function(data,
       # end: if(test == "both")
     } else if (test == "temporal"){
 
-      mod_pp <- mod_saturated_contEq %>%
+      mod_pp <- mod_saturated %>%
+        groupequal(matrix = "omega_zeta_within")%>%
         partialprune(matrices = "beta",
                      alpha = p_prune_alpha,
                      return = "partialprune") %>%
@@ -453,7 +454,8 @@ IVPP_panelgvar <- function(data,
       # end: if(test == "temporal")
     } else if (test == "contemporaneous"){
 
-      mod_pp <- mod_saturated_tempEq %>%
+      mod_pp <- mod_saturated %>%
+        groupequal(matrix = "beta") %>%
         partialprune(matrices = "omega_zeta_within",
                      alpha = p_prune_alpha,
                      return = "partialprune") %>%
