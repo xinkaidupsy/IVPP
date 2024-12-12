@@ -13,6 +13,7 @@ IVPP_panelgvar(
   test = c("both", "temporal", "contemporaneous"),
   net_type = c("saturated", "sparse"),
   partial_prune = FALSE,
+  prune_net = c("both", "temporal", "contemporaneous"),
   prune_alpha = 0.01,
   p_prune_alpha = 0.01,
   estimator = "FIML",
@@ -43,6 +44,8 @@ Specify "sparse" if you want to estimate and compare the pruned networks.}
 
 \item{partial_prune}{A logical value specifying whether to conduct partial pruning test or not.}
 
+\item{prune_net}{A character vector specifying the network you want to partial prune on. Only works when partial_prune = TRUE.}
+
 \item{prune_alpha}{A numeric value specifying the alpha level for the pruning (if net_type = "sparse").}
 
 \item{p_prune_alpha}{A numeric value specifying the alpha level for the partial pruning (if partial_prune = TRUE).}
@@ -68,4 +71,32 @@ The comparison between the fully unconstrained (free) model and tempEq model is 
 The comparison between fully constrained model (bothEq) and tempEq is a test for group equality in contemporaneous networks.
 Similarly, the comparison between the free model and contEq model is a test for group equality in contemporaneous networks,
 and the comparison between bothEq and contEq is a test for group equality in temporal networks.
+}
+\examples{
+# Generate the network
+net_ls <- gen_panelGVAR(n_node = 6,
+                        p_rewire = 0.5,
+                        n_group = 3)
+
+# Generate the data
+data <- sim_panelGVAR(temp_base_ls = net_ls$temporal,
+                      cont_base_ls = net_ls$omega_zeta_within,
+                      n_person = 500,
+                      n_time = 4,
+                      n_group = 3,
+                      n_node = 6)
+
+# IVPP test on the temporal network
+ivpp <- IVPP_panelgvar(data,
+                       vars = paste0("V",1:6),
+                       idvar = "subject",
+                       beepvar = "time",
+                       groups = "group",
+                       test = "temporal",
+                       net_type = "saturated",
+                       prune_net = "temporal",
+                       partial_prune = TRUE,
+                       estimator = "FIML",
+                       standardize = "z")
+
 }
