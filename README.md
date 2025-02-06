@@ -4,7 +4,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of IVPP is to ...
+The goal of IVPP is to compare network models for intensive time-series and panel data. 
 
 ## Installation
 
@@ -49,9 +49,11 @@ ivpp <- IVPP_panelgvar(data,
 
 ```
 
-An example that uses IVPP to compare $N=1$ GVAR models
+An example that uses IVPP to compare N = 1 GVAR models
 
 ``` r
+library(IVPP)
+
 # Generate the network
 net_ls <- gen_tsGVAR(n_node = 6,
                      p_rewire = 0.5,
@@ -66,7 +68,7 @@ data <- sim_tsGVAR(beta_base_ls = net_ls$beta,
 # IVPP test on
 ivpp_ts <- IVPP_tsgvar(data = data,
                        vars = paste0("V",1:6),
-                       idvar = idvar,
+                       idvar = "id",
                        test = "temporal",
                        net_type = "saturated",
                        prune_net = "temporal",

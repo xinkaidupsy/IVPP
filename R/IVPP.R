@@ -485,8 +485,8 @@ IVPP_panelgvar <- function(data,
 #'
 #' @return A list containing the results of IVPP and networks of all groups.
 #'
-#' @import dplyr
-#' @import psychonetrics
+#' @import dplyr psychonetrics
+#' @importFrom stats ave
 #' @export IVPP_tsgvar
 #' @examples
 #' # Generate the network
@@ -503,7 +503,7 @@ IVPP_panelgvar <- function(data,
 #' # IVPP test on
 #' ivpp_ts <- IVPP_tsgvar(data = data,
 #'                        vars = paste0("V",1:6),
-#'                        idvar = idvar,
+#'                        idvar = "id",
 #'                        test = "temporal",
 #'                        net_type = "saturated",
 #'                        prune_net = "temporal",

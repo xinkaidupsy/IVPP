@@ -15,12 +15,8 @@
 #' @param save_nets a logical value indicating whether to save the data-generating networks, default to FALSE
 #'
 #' @return A list of temporal and contemporaneous networks
-
 #' @import mvtnorm dplyr
-
-#' @importFrom stats cov2cor
-#' @importFrom stats setNames
-
+#' @importFrom stats cov2cor setNames
 #' @export sim_panelGVAR
 
 sim_panelGVAR <- function(temp_base_ls,
@@ -278,9 +274,9 @@ sim_panelGVAR <- function(temp_base_ls,
 
 } # end: sim_panelGVAR
 
-#' Simulate data for a (multi-group) panelGVAR model
+#' Simulate data for a (multi-group) N = 1 GVAR model
 #'
-#' This function generates data for the input (multi-group) panelGVAR model
+#' This function generates data for the input (multi-group) N = 1 GVAR model
 #'
 #' @param temp_base_ls a list of temporal networks of all individuals
 #' @param beta_base_ls a list of beta matrices of all individuals
@@ -292,12 +288,9 @@ sim_panelGVAR <- function(temp_base_ls,
 #' @param save_nets a logical value indicating whether to save the data-generating networks, default to FALSE
 #'
 #' @return A list of temporal and contemporaneous networks
-#'
 #' @import mvtnorm dplyr
-#'
 #' @importFrom graphicalVAR graphicalVARsim
-
-#' @export sim_panelGVAR
+#' @export sim_tsGVAR
 
 sim_tsGVAR <- function(temp_base_ls,
                        beta_base_ls,

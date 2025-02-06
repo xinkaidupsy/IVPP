@@ -14,5 +14,6 @@ Imports:
   clusterGeneration,
   dplyr,
   mvtnorm,
-  psychonetrics
+  psychonetrics,
+  graphicalVAR
 RoxygenNote: 7.3.1

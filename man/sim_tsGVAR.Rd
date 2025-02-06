@@ -2,7 +2,7 @@
 % Please edit documentation in R/dt_gen.R
 \name{sim_tsGVAR}
 \alias{sim_tsGVAR}
-\title{Simulate data for a (multi-group) panelGVAR model}
+\title{Simulate data for a (multi-group) N = 1 GVAR model}
 \usage{
 sim_tsGVAR(
   temp_base_ls,
@@ -36,5 +36,5 @@ sim_tsGVAR(
 A list of temporal and contemporaneous networks
 }
 \description{
-This function generates data for the input (multi-group) panelGVAR model
+This function generates data for the input (multi-group) N = 1 GVAR model
 }

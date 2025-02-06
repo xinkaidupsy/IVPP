@@ -87,7 +87,7 @@ data <- sim_tsGVAR(beta_base_ls = net_ls$beta,
 # IVPP test on
 ivpp_ts <- IVPP_tsgvar(data = data,
                        vars = paste0("V",1:6),
-                       idvar = idvar,
+                       idvar = "id",
                        test = "temporal",
                        net_type = "saturated",
                        prune_net = "temporal",
