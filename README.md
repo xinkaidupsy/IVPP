@@ -6,8 +6,8 @@
 ![CRAN Version](https://www.r-pkg.org/badges/version/yourPackageName)
 ![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/grand-total/yourPackageName)
 [![codecov](https://codecov.io/gh/yourUsername/yourRepoName/branch/main/graph/badge.svg)](https://codecov.io/gh/yourUsername/yourRepoName)
-[![R-CMD-check](https://github.com/yourUsername/yourRepoName/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yourUsername/yourRepoName/actions/workflows/R-CMD-check.yaml)
-![CRAN checks](https://cranchecks.info/badges/summary/yourPackageName)
+# [![R-CMD-check](https://github.com/yourUsername/yourRepoName/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yourUsername/yourRepoName/actions/workflows/R-CMD-check.yaml)
+# ![CRAN checks](https://cranchecks.info/badges/summary/yourPackageName)
 <!-- badges: end -->
 
 
