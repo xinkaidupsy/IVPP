@@ -2,10 +2,11 @@ Package: IVPP
 Type: Package
 Title: Invariance Partial Pruning Test
 Version: 0.0.1
-Author: Xinkai Du
-Maintainer: Xinkai Du <xinkai.du.xd@gmail.com>
+Authors@R: 
+    person("Xinkai", "Du", , "xinkai.du.xd@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-4158-7878"))
 Description: A package for the Invariance Partial Pruning (IVPP) approach to comparing idiographic and panel network models. IVPP is a two-step method that first test for global network structural difference with invariance test and then inspect specific edge difference with partial pruning. 
-License: GPL-3
+License: MIT + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 4.3.0)
 Imports:

@@ -295,8 +295,6 @@ sim_panelGVAR <- function(temp_base_ls,
 #'
 #' @import mvtnorm dplyr
 #'
-#' @importFrom stats cov2cor
-#' @importFrom stats setNames
 #' @importFrom graphicalVAR graphicalVARsim
 
 #' @export sim_panelGVAR
