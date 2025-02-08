@@ -6,9 +6,7 @@
     <a href="https://github.com/xinkaidupsy/IVPP/releases"><img src="https://img.shields.io/github/v/release/xinkaidupsy/IVPP?display_name=tag&sort=semver" alt="GitHub release"/></a>
     <a href="https://www.r-pkg.org/pkg/IVPP"><img src="https://www.r-pkg.org/badges/version/IVPP" alt="CRAN version"/></a>
     <a href="https://www.r-pkg.org/pkg/IVPP"><img src="https://cranlogs.r-pkg.org/badges/grand-total/IVPP" alt="CRAN RStudio mirror downloads"/></a>
-    <a href="https://app.codecov.io/gh/xinkaidupsy/IVPP"><img src="https://codecov.io/gh/xinkaidupsy/IVPP/branch/main/graph/badge.svg" alt="Code coverage"/></a>
     <a href="https://github.com/xinkaidupsy/IVPP/actions"><img src="https://github.com/xinkaidupsy/IVPP/workflows/R-CMD-check/badge.svg" alt="R-CMD-check" /></a>
-    <a href="https://cran.rstudio.com/web/checks/check_results_IVPP.html"><img src="https://badges.cranchecks.info/worst/IVPP.svg" alt="CRAN checks"/></a>
 </p>
 
 The goal of IVPP is to compare network models for intensive time-series and panel data. 
