@@ -40,6 +40,7 @@
 #' @import psychonetrics
 #' @export IVPP_panelgvar
 #' @examples
+#' \dontrun{
 #' # Generate the network
 #' net_ls <- gen_panelGVAR(n_node = 6,
 #'                         p_rewire = 0.5,
@@ -65,7 +66,7 @@
 #'                        partial_prune = TRUE,
 #'                        estimator = "FIML",
 #'                        standardize = "z")
-#'
+#'}
 
 IVPP_panelgvar <- function(data,
                        vars,
@@ -453,7 +454,6 @@ IVPP_panelgvar <- function(data,
 #' This function implements the IVPP algorithm to compare networks in the multi-group panelGVAR models.
 #' The IVPP algorithm is a two-step procedure that first conducts an global invariance test of network difference and then performs partial pruning for the specific edge-level differences.
 #' Currently supports the comparison of temporal and contemporaneous networks.
-#'
 #' @param data A data frame containing the long-formatted panel data
 #' @param vars A character vector of variable names
 #' @param idvar A character string specifying the IDs of subjects you want to compare
@@ -476,19 +476,17 @@ IVPP_panelgvar <- function(data,
 #' "none" (default) for no standardization, "z" for z-scores,
 #' and "quantile" for a non-parametric transformation to the quantiles of the marginal standard normal distribution.
 #' @param ... Additional arguments to be passed to the \code{\link[psychonetrics]{dlvm1}} function
-#'
 #' @details
 #' The comparison between the fully unconstrained (free) model and tempEq model is a test for group equality in temporal networks.
 #' The comparison between fully constrained model (bothEq) and tempEq is a test for group equality in contemporaneous networks.
 #' Similarly, the comparison between the free model and contEq model is a test for group equality in contemporaneous networks,
 #' and the comparison between bothEq and contEq is a test for group equality in temporal networks.
-#'
 #' @return A list containing the results of IVPP and networks of all groups.
-#'
 #' @import dplyr psychonetrics
 #' @importFrom stats ave
 #' @export IVPP_tsgvar
 #' @examples
+#' \dontrun{
 #' # Generate the network
 #' net_ls <- gen_tsGVAR(n_node = 6,
 #'                      p_rewire = 0.5,
@@ -510,7 +508,7 @@ IVPP_panelgvar <- function(data,
 #'                        partial_prune = TRUE,
 #'                        estimator = "FIML",
 #'                        standardize = "z")
-#'
+#'}
 
 IVPP_tsgvar <- function(data,
                         vars,

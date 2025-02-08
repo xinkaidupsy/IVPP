@@ -1,7 +1,7 @@
 Package: IVPP
 Type: Package
 Title: Invariance Partial Pruning Test
-Version: 0.1.0
+Version: 1.0.0
 Authors@R: 
     person(
       "Xinkai", "Du", , 
@@ -26,5 +26,5 @@ Imports:
     lifecycle
 BugReports: https://github.com/xinkaidupsy/IVPP/issues
 URL: https://github.com/xinkaidupsy/IVPP
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
