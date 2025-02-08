@@ -2,7 +2,7 @@
 # IVPP
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/xinkaidupsy/IVPP/actions/workflows/R-CMD-check/badge.svg)](https://github.com/xinkaidupsy/IVPP/actions/workflows/R-CMD-check
+[![R-CMD-check](https://github.com/xinkaidupsy/IVPP/actions/workflows/R-CMD-check/badge.svg)](https://github.com/xinkaidupsy/IVPP/actions/workflows/R-CMD-check)
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->
 
