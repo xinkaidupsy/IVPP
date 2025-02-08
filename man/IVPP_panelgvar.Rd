@@ -76,14 +76,14 @@ and the comparison between bothEq and contEq is a test for group equality in tem
 # Generate the network
 net_ls <- gen_panelGVAR(n_node = 6,
                         p_rewire = 0.5,
-                        n_group = 3)
+                        n_group = 2)
 
 # Generate the data
 data <- sim_panelGVAR(temp_base_ls = net_ls$temporal,
                       cont_base_ls = net_ls$omega_zeta_within,
-                      n_person = 500,
-                      n_time = 4,
-                      n_group = 3,
+                      n_person = 250,
+                      n_time = 3,
+                      n_group = 2,
                       n_node = 6)
 
 # IVPP test on the temporal network

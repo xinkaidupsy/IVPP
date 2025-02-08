@@ -9,7 +9,10 @@ Authors@R:
       role = c("aut", "cre", "cph"),
       comment = c(ORCID = "0000-0002-4158-7878")
       )
-Description: A package for the Invariance Partial Pruning (IVPP) approach to comparing idiographic and panel network models. IVPP is a two-step method that first test for global network structural difference with invariance test and then inspect specific edge difference with partial pruning. 
+Description: An implementation of the Invariance Partial Pruning (IVPP) approach 
+  to comparing idiographic and panel network models. 
+  IVPP is a two-step method that first test for global network structural difference 
+  with invariance test and then inspect specific edge difference with partial pruning. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 4.3.0)

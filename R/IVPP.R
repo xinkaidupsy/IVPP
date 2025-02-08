@@ -43,14 +43,14 @@
 #' # Generate the network
 #' net_ls <- gen_panelGVAR(n_node = 6,
 #'                         p_rewire = 0.5,
-#'                         n_group = 3)
+#'                         n_group = 2)
 #'
 #'# Generate the data
 #' data <- sim_panelGVAR(temp_base_ls = net_ls$temporal,
 #'                       cont_base_ls = net_ls$omega_zeta_within,
-#'                       n_person = 500,
-#'                       n_time = 4,
-#'                       n_group = 3,
+#'                       n_person = 250,
+#'                       n_time = 3,
+#'                       n_group = 2,
 #'                       n_node = 6)
 #'
 #' # IVPP test on the temporal network
@@ -492,12 +492,12 @@ IVPP_panelgvar <- function(data,
 #' # Generate the network
 #' net_ls <- gen_tsGVAR(n_node = 6,
 #'                      p_rewire = 0.5,
-#'                      n_persons = 3)
+#'                      n_persons = 2)
 #'
 #' # Generate the data
 #' data <- sim_tsGVAR(beta_base_ls = net_ls$beta,
 #'                    kappa_base_ls = net_ls$kappa,
-#'                    # n_person = 3,
+#'                    # n_person = 2,
 #'                    n_time = 50)
 #'
 #' # IVPP test on
