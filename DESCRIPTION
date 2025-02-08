@@ -10,12 +10,14 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 4.3.0)
 Imports:
-  bootnet,
-  clusterGeneration,
-  dplyr,
-  mvtnorm,
-  psychonetrics,
-  graphicalVAR
+    bootnet,
+    clusterGeneration,
+    dplyr,
+    mvtnorm,
+    psychonetrics,
+    graphicalVAR,
+    lifecycle
 BugReports: https://github.com/xinkaidupsy/IVPP/issues
 URL: https://github.com/xinkaidupsy/IVPP
 RoxygenNote: 7.3.1
+Roxygen: list(markdown = TRUE)

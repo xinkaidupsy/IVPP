@@ -1,13 +1,10 @@
 
 # IVPP
 
-<p align="center">
-    <a href="https://www.repostatus.org/#active"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="Repository status"/></a>
-    <a href="https://github.com/xinkaidupsy/IVPP/releases"><img src="https://img.shields.io/github/v/release/xinkaidupsy/IVPP?display_name=tag&sort=semver" alt="GitHub release"/></a>
-    <a href="https://www.r-pkg.org/pkg/IVPP"><img src="https://www.r-pkg.org/badges/version/IVPP" alt="CRAN version"/></a>
-    <a href="https://www.r-pkg.org/pkg/IVPP"><img src="https://cranlogs.r-pkg.org/badges/grand-total/IVPP" alt="CRAN RStudio mirror downloads"/></a>
-    <a href="https://github.com/xinkaidupsy/IVPP/actions"><img src="https://github.com/xinkaidupsy/IVPP/workflows/R-CMD-check/badge.svg" alt="R-CMD-check" /></a>
-</p>
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/xinkaidupsy/IVPP/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/xinkaidupsy/IVPP/actions/workflows/R-CMD-check.yaml)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+<!-- badges: end -->
 
 The goal of IVPP is to compare network models for intensive time-series and panel data. 
 
