@@ -16,4 +16,7 @@ Imports:
   mvtnorm,
   psychonetrics,
   graphicalVAR
+BugReports: https://github.com/xinkaidupsy/IVPP/issues
+URL: https://github.com/xinkaidupsy/IVPP
+
 RoxygenNote: 7.3.1
