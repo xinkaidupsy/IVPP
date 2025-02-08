@@ -40,6 +40,7 @@
 #' @import psychonetrics
 #' @export IVPP_panelgvar
 #' @examples
+#' \dontrun{
 #' # Generate the network
 #' net_ls <- gen_panelGVAR(n_node = 6,
 #'                         p_rewire = 0.5,
@@ -65,7 +66,7 @@
 #'                        partial_prune = TRUE,
 #'                        estimator = "FIML",
 #'                        standardize = "z")
-#'
+#'}
 
 IVPP_panelgvar <- function(data,
                        vars,
@@ -485,6 +486,7 @@ IVPP_panelgvar <- function(data,
 #' @importFrom stats ave
 #' @export IVPP_tsgvar
 #' @examples
+#' \dontrun{
 #' # Generate the network
 #' net_ls <- gen_tsGVAR(n_node = 6,
 #'                      p_rewire = 0.5,
@@ -506,7 +508,7 @@ IVPP_panelgvar <- function(data,
 #'                        partial_prune = TRUE,
 #'                        estimator = "FIML",
 #'                        standardize = "z")
-#'
+#'}
 
 IVPP_tsgvar <- function(data,
                         vars,
