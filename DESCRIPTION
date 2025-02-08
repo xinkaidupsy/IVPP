@@ -1,7 +1,7 @@
 Package: IVPP
 Type: Package
 Title: Invariance Partial Pruning Test
-Version: 0.0.1
+Version: 0.1.0
 Authors@R: 
     person("Xinkai", "Du", , "xinkai.du.xd@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4158-7878"))
