@@ -17,6 +17,12 @@
 #' @import bootnet dplyr clusterGeneration
 #' @importFrom stats setNames cov2cor
 #' @export gen_panelGVAR
+#' @examples
+#' library(IVPP)
+#' # Generate the network
+#' net_ls <- gen_panelGVAR(n_node = 6,
+#'                         p_rewire = 0.5,
+#'                         n_group = 3)
 
 
 
@@ -123,7 +129,13 @@ gen_panelGVAR <- function(n_node = 6,
 #' @import bootnet dplyr clusterGeneration
 #' @importFrom stats setNames cov2cor
 #' @export gen_tsGVAR
-
+#' @examples
+#' library(IVPP)
+#'
+#' # Generate the network
+#' net_ls <- gen_tsGVAR(n_node = 6,
+#'                      p_rewire = 0.5,
+#'                      n_persons = 3)
 
 
 gen_tsGVAR <- function(n_node = 6,

@@ -18,6 +18,21 @@
 #' @import mvtnorm dplyr
 #' @importFrom stats cov2cor setNames
 #' @export sim_panelGVAR
+#' @examples
+#' library(IVPP)
+#' # Generate the network
+#' net_ls <- gen_panelGVAR(n_node = 6,
+#'                         p_rewire = 0.5,
+#'                         n_group = 3)
+#'
+#' # Generate the data
+#' data <- sim_panelGVAR(temp_base_ls = net_ls$temporal,
+#'                       cont_base_ls = net_ls$omega_zeta_within,
+#'                       n_person = 500,
+#'                       n_time = 4,
+#'                       n_group = 3,
+#'                       n_node = 6)
+
 
 sim_panelGVAR <- function(temp_base_ls,
                           beta_base_ls,
@@ -291,6 +306,18 @@ sim_panelGVAR <- function(temp_base_ls,
 #' @import mvtnorm dplyr
 #' @importFrom graphicalVAR graphicalVARsim
 #' @export sim_tsGVAR
+#' @examples
+#' library(IVPP)
+#' # Generate the network
+#' net_ls <- gen_tsGVAR(n_node = 6,
+#'                      p_rewire = 0.5,
+#'                      n_persons = 3)
+#'
+#' # Generate the data
+#' data <- sim_tsGVAR(beta_base_ls = net_ls$beta,
+#'                    kappa_base_ls = net_ls$kappa,
+#'                    # n_person = 3,
+#'                    n_time = 50)
 
 sim_tsGVAR <- function(temp_base_ls,
                        beta_base_ls,

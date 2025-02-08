@@ -47,3 +47,18 @@ A list of temporal and contemporaneous networks
 \description{
 This function generates data for the input (multi-group) panelGVAR model
 }
+\examples{
+library(IVPP)
+# Generate the network
+net_ls <- gen_panelGVAR(n_node = 6,
+                        p_rewire = 0.5,
+                        n_group = 3)
+
+# Generate the data
+data <- sim_panelGVAR(temp_base_ls = net_ls$temporal,
+                      cont_base_ls = net_ls$omega_zeta_within,
+                      n_person = 500,
+                      n_time = 4,
+                      n_group = 3,
+                      n_node = 6)
+}

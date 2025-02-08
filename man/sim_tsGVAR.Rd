@@ -38,3 +38,16 @@ A list of temporal and contemporaneous networks
 \description{
 This function generates data for the input (multi-group) N = 1 GVAR model
 }
+\examples{
+library(IVPP)
+# Generate the network
+net_ls <- gen_tsGVAR(n_node = 6,
+                     p_rewire = 0.5,
+                     n_persons = 3)
+
+# Generate the data
+data <- sim_tsGVAR(beta_base_ls = net_ls$beta,
+                   kappa_base_ls = net_ls$kappa,
+                   # n_person = 3,
+                   n_time = 50)
+}

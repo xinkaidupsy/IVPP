@@ -27,3 +27,11 @@ Currently generating temporal and contemporaneous networks
 which is a inverse of covariance matrix denoting the (dependence) among variables;
 kappa can be further standardized to the contemporaneous networks (\code{omega_zeta_within})
 }
+\examples{
+library(IVPP)
+
+# Generate the network
+net_ls <- gen_tsGVAR(n_node = 6,
+                     p_rewire = 0.5,
+                     n_persons = 3)
+}
