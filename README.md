@@ -1,12 +1,15 @@
 
 # IVPP
 
-<!-- badges: start -->
-![GitHub Repo Status](https://img.shields.io/badge/repo%20status-active-brightgreen)
-![CRAN Version](https://www.r-pkg.org/badges/version/yourPackageName)
-![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/grand-total/yourPackageName)
-[![codecov](https://codecov.io/gh/yourUsername/yourRepoName/branch/main/graph/badge.svg)](https://codecov.io/gh/yourUsername/yourRepoName)
-<!-- badges: end -->
+<p align="center">
+    <a href="https://www.repostatus.org/#active"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="Repository status"/></a>
+    <a href="https://github.com/mihaiconstantin/powerly/releases"><img src="https://img.shields.io/github/v/release/mihaiconstantin/powerly?display_name=tag&sort=semver"/></a>
+    <a href="https://www.r-pkg.org/pkg/powerly"><img src="https://www.r-pkg.org/badges/version/powerly" alt="CRAN version"/></a>
+    <a href="https://www.r-pkg.org/pkg/powerly"><img src="https://cranlogs.r-pkg.org/badges/grand-total/powerly" alt="CRAN RStudio mirror downloads"/></a>
+    <a href="https://app.codecov.io/gh/mihaiconstantin/powerly"><img src="https://codecov.io/gh/mihaiconstantin/powerly/branch/main/graph/badge.svg?token=YUCO8ULBCM" alt="Code coverage"/></a>
+    <a href="https://github.com/mihaiconstantin/powerly/actions"><img src="https://github.com/mihaiconstantin/powerly/workflows/R-CMD-check/badge.svg" alt="R-CMD-check" /></a>
+    <a href="https://cran.rstudio.com/web/checks/check_results_powerly.html"><img src="https://badges.cranchecks.info/worst/powerly.svg" alt="CRAN checks"/></a>
+</p>
 
 
 The goal of IVPP is to compare network models for intensive time-series and panel data. 
