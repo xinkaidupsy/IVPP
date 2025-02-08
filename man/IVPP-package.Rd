@@ -17,7 +17,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Xinkai Du \email{xinkai.du.xd@gmail.com} (\href{https://orcid.org/0000-0002-4158-7878}{ORCID})
+\strong{Maintainer}: Xinkai Du \email{xinkai.du.xd@gmail.com} (\href{https://orcid.org/0000-0002-4158-7878}{ORCID}) [copyright holder]
 
 }
 \keyword{internal}
