@@ -40,7 +40,7 @@
 #' @import psychonetrics
 #' @export IVPP_panelgvar
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Generate the network
 #' net_ls <- gen_panelGVAR(n_node = 6,
 #'                         p_rewire = 0.5,
@@ -434,7 +434,7 @@ IVPP_panelgvar <- function(data,
     names(mat) <- gsub("omega_zeta_within", "contemporaneous", names(mat))
 
     # warn exploratory pruning
-    cat("\nResults of partial pruning are explratory. Be careful to interpret if group-equality constraints decreased AIC or BIC")
+    message("\nResults of partial pruning are explratory. Be careful to interpret if group-equality constraints decreased AIC or BIC")
 
   # end if (partial_prune = TRUE)
   } else {
@@ -486,7 +486,7 @@ IVPP_panelgvar <- function(data,
 #' @importFrom stats ave
 #' @export IVPP_tsgvar
 #' @examples
-#' \dontrun{
+#' \dontest{
 #' # Generate the network
 #' net_ls <- gen_tsGVAR(n_node = 6,
 #'                      p_rewire = 0.5,
@@ -818,7 +818,7 @@ IVPP_tsgvar <- function(data,
     names(mat) <- gsub("omega_zeta", "contemporaneous", names(mat))
 
     # warn exploratory pruning
-    cat("\nResults of partial pruning are explratory. Be careful to interpret if group-equality constraints decreased AIC or BIC")
+    message("\nResults of partial pruning are explratory. Be careful to interpret if group-equality constraints decreased AIC or BIC")
 
   } else {
     mat <- c("Specified partial_prune = FALSE. No partial pruning results.")
