@@ -73,7 +73,7 @@ Similarly, the comparison between the free model and contEq model is a test for 
 and the comparison between bothEq and contEq is a test for group equality in temporal networks.
 }
 \examples{
-\dontrun{
+\donttest{
 # Generate the network
 net_ls <- gen_tsGVAR(n_node = 6,
                      p_rewire = 0.5,

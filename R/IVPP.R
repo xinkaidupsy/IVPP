@@ -486,7 +486,7 @@ IVPP_panelgvar <- function(data,
 #' @importFrom stats ave
 #' @export IVPP_tsgvar
 #' @examples
-#' \dontest{
+#' \donttest{
 #' # Generate the network
 #' net_ls <- gen_tsGVAR(n_node = 6,
 #'                      p_rewire = 0.5,
