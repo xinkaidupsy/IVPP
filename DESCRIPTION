@@ -10,7 +10,7 @@ Authors@R:
       comment = c(ORCID = "0000-0002-4158-7878")
       )
 Description: An implementation of the Invariance Partial Pruning (IVPP) approach 
-  described in Du, X., Johnson, S. U., Epskamp, S. (in prep)to comparing idiographic 
+  described in Du, X., Johnson, S. U., Epskamp, S. (in prep) to comparing idiographic 
   and panel network models. IVPP is a two-step method that first test for global network 
   structural difference with invariance test and then inspect specific edge difference with partial pruning. 
 License: MIT + file LICENSE
