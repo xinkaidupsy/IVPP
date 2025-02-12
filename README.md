@@ -9,6 +9,11 @@
 The goal of IVPP is to compare network models for intensive time-series and panel data. 
 
 ## Installation
+To install from CRAN:
+
+``` r
+install.packages("IVPP")
+```
 
 You can install the development version of IVPP from [GitHub](https://github.com/) with:
 
