@@ -1,3 +1,3 @@
 # IVPP (development version)
 
-* Added a `NEWS.md` file to track changes to the package.
+IVPP 1.0.0 has been accepted by CRAN
