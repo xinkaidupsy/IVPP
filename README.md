@@ -4,6 +4,8 @@
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/xinkaidupsy/IVPP/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/xinkaidupsy/IVPP/actions/workflows/R-CMD-check.yaml)
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![CRAN status](https://www.r-pkg.org/badges/version/IVPP)](https://CRAN.R-project.org/package=IVPP)
+[![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/IVPP)](https://cran.r-project.org/package=IVPP)
 <!-- badges: end -->
 
 The goal of IVPP is to compare network models for intensive time-series and panel data. 
