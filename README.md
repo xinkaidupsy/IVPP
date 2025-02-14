@@ -8,7 +8,10 @@
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/IVPP)](https://cran.r-project.org/package=IVPP)
 <!-- badges: end -->
 
-The goal of IVPP is to compare network models for intensive time-series and panel data. 
+An implementation of the Invariance Partial Pruning (IVPP) approach 
+described in Du, X., Johnson, S. U., Epskamp, S. (in prep) to comparing idiographic 
+and panel network models. IVPP is a two-step method that first test for global network
+structural difference with invariance test and then inspect specific edge difference with partial pruning. 
 
 ## Installation
 To install from CRAN:
