@@ -134,8 +134,8 @@ IVPP_panelgvar <- function(data,
     stop("network to test should be either 'both', 'temporal', or 'contemporaneous'")
   }
 
-  if(!partial_prune &
-     prune_net %in% c("both", "temporal", "contemporaneous")){
+  if(partial_prune &
+     !(prune_net %in% c("both", "temporal", "contemporaneous"))){
     stop("prune_net should be either 'both', 'temporal', or 'contemporaneous'")
   }
 
@@ -584,12 +584,12 @@ IVPP_tsgvar <- function(data,
     stop("network to test should be either 'both', 'temporal', or 'contemporaneous'")
   }
 
-  if(!partial_prune &
-     prune_net %in% c("both", "temporal", "contemporaneous")){
+  if(partial_prune &
+     !(prune_net %in% c("both", "temporal", "contemporaneous"))){
     stop("prune_net should be either 'both', 'temporal', or 'contemporaneous'")
   }
 
-  if(!partial_prune &
+  if(partial_prune &
      prune_net != test){
     warning("The network you are partial pruning is different than the network you are testing equality on")
   }
