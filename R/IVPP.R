@@ -141,7 +141,7 @@ IVPP_panelgvar <- function(data,
 
   if(!partial_prune &
      prune_net != test){
-    warning("The network you are partial pruning is different than the network you are testing equality on")
+    stop("The network you are partial pruning is different than the network you are testing equality on")
   }
 
   # net_type
@@ -591,7 +591,7 @@ IVPP_tsgvar <- function(data,
 
   if(partial_prune &
      prune_net != test){
-    warning("The network you are partial pruning is different than the network you are testing equality on")
+    stop("The network you are partial pruning is different than the network you are testing equality on")
   }
 
   # net_type
