@@ -139,7 +139,7 @@ IVPP_panelgvar <- function(data,
     stop("prune_net should be either 'both', 'temporal', or 'contemporaneous'")
   }
 
-  if(!partial_prune &
+  if(partial_prune &
      prune_net != test){
     stop("The network you are partial pruning is different than the network you are testing equality on")
   }
