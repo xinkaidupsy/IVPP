@@ -85,6 +85,12 @@ IVPP_panelgvar <- function(data,
                        standardize = c("none", "z","quantile"),
                        ...){
 
+  # Validate arguments to ensure single value
+  prune_net <- match.arg(prune_net, c("both", "temporal", "contemporaneous"))
+  test <- match.arg(test)
+  net_type <- match.arg(net_type)
+  standardize <- match.arg(standardize)
+
   # ----- argument check -----
 
   if(missing(data)){
@@ -531,6 +537,12 @@ IVPP_tsgvar <- function(data,
                         estimator = "FIML",
                         standardize = c("none", "z","quantile"),
                         ...){
+
+  # Validate arguments to ensure single value
+  prune_net <- match.arg(prune_net, c("both", "temporal", "contemporaneous"))
+  test <- match.arg(test)
+  net_type <- match.arg(net_type)
+  standardize <- match.arg(standardize)
 
   # ----- argument check -----
 
