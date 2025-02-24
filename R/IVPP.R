@@ -120,13 +120,27 @@ IVPP_panelgvar <- function(data,
     stop("specify the group variable")
   }
 
-  # test & prune_net
-  if(!(test %in% c("both", "temporal", "contemporaneous") &
-       prune_net %in% c("both", "temporal", "contemporaneous"))){
-    stop("test and prune_net should be either 'both', 'temporal', or 'contemporaneous'")
+  # partial_prune
+  if(missing(partial_prune)){
+    stop("specify whether to conduct partial pruning or not")
   }
 
-  if(partial_prune && test != prune_net){
+  if(!is.logical(partial_prune)){
+    stop("partial_prune should be a logical value")
+  }
+
+  # test & prune_net
+  if(!(test %in% c("both", "temporal", "contemporaneous"))){
+    stop("network to test should be either 'both', 'temporal', or 'contemporaneous'")
+  }
+
+  if(partial_prune &
+     prune_net %in% c("both", "temporal", "contemporaneous")){
+    stop("prune_net should be either 'both', 'temporal', or 'contemporaneous'")
+  }
+
+  if(partial_prune &
+     prune_net != test){
     warning("The network you are partial pruning is different than the network you are testing equality on")
   }
 
@@ -137,15 +151,6 @@ IVPP_panelgvar <- function(data,
 
   if(!(net_type %in% c("saturated", "sparse"))){
     stop("network_type is either 'saturated or 'sparse'")
-  }
-
-  # partial_prune
-  if(missing(partial_prune)){
-    stop("specify whether to conduct partial pruning or not")
-  }
-
-  if(!is.logical(partial_prune)){
-    stop("partial_prune should be a logical value")
   }
 
   # estimator
@@ -565,13 +570,27 @@ IVPP_tsgvar <- function(data,
 
   }
 
-  # test & prune_net
-  if(!(test %in% c("both", "temporal", "contemporaneous") &
-       prune_net %in% c("both", "temporal", "contemporaneous"))){
-    stop("test and prune_net should be either 'both', 'temporal', or 'contemporaneous'")
+  # partial_prune
+  if(missing(partial_prune)){
+    stop("specify whether to conduct partial pruning or not")
   }
 
-  if(partial_prune && test != prune_net){
+  if(!is.logical(partial_prune)){
+    stop("partial_prune should be a logical value")
+  }
+
+  # test & prune_net
+  if(!(test %in% c("both", "temporal", "contemporaneous"))){
+    stop("network to test should be either 'both', 'temporal', or 'contemporaneous'")
+  }
+
+  if(partial_prune &
+     prune_net %in% c("both", "temporal", "contemporaneous")){
+    stop("prune_net should be either 'both', 'temporal', or 'contemporaneous'")
+  }
+
+  if(partial_prune &
+     prune_net != test){
     warning("The network you are partial pruning is different than the network you are testing equality on")
   }
 
@@ -582,15 +601,6 @@ IVPP_tsgvar <- function(data,
 
   if(!(net_type %in% c("saturated", "sparse"))){
     stop("network_type is either 'saturated or 'sparse'")
-  }
-
-  # partial_prune
-  if(missing(partial_prune)){
-    stop("specify whether to conduct partial pruning or not")
-  }
-
-  if(!is.logical(partial_prune)){
-    stop("partial_prune should be a logical value")
   }
 
   # estimator
