@@ -72,7 +72,7 @@
 #'                                g_test_net = "both",
 #'                                net_type = "sparse",
 #'                                partial_prune = FALSE,
-#'                                ncores = 2)
+#'                                ncores = 1)
 #'
 #' # global test on temporal
 #' omnibus_temp <- IVPP_panelgvar(data,
@@ -83,7 +83,7 @@
 #'                                g_test_net = "temporal",
 #'                                net_type = "sparse",
 #'                                partial_prune = FALSE,
-#'                                ncores = 2)
+#'                                ncores = 1)
 #'
 #' # global test on cont
 #' omnibus_cont <- IVPP_panelgvar(data,
@@ -94,7 +94,7 @@
 #'                                g_test_net = "contemporaneous",
 #'                                net_type = "sparse",
 #'                                partial_prune = FALSE,
-#'                                ncores = 2)
+#'                                ncores = 1)
 #'
 #' # partial prune on both networks
 #' pp_both <- IVPP_panelgvar(data,
@@ -106,7 +106,7 @@
 #'                           net_type = "sparse",
 #'                           partial_prune = TRUE,
 #'                           prune_net = "both",
-#'                           ncores = 2)
+#'                           ncores = 1)
 #'}
 
 IVPP_panelgvar <- function(data,
@@ -258,8 +258,15 @@ IVPP_panelgvar <- function(data,
       # multi-group model estimation
       if (g_test_net == "temporal" | g_test_net == "contemporaneous") {
 
-        mods <- parallel::mclapply(c("beta", "omega_zeta_within"), mc.cores = ncores, function(net) {
-          mod_saturated %>% groupequal(matrix = net) %>% runmodel %>% suppressWarnings
+        # Set up parallel execution plan
+        future::plan(future::multisession, workers = ncores)
+
+        # estimate partially constrained models
+        mods <- future.apply::future_lapply(c("beta", "omega_zeta_within"), function(net) {
+          mod_saturated %>%
+            groupequal(matrix = net) %>%
+            runmodel %>%
+            suppressWarnings
         })
 
         mod_saturated_tempEq <- mods[[1]]
@@ -312,9 +319,14 @@ IVPP_panelgvar <- function(data,
       # estimate the multi-group model
       if (g_test_net == "temporal"|g_test_net == "contemporaneous"){
 
-        mods <- parallel::mclapply(c("beta", "omega_zeta_within"), mc.cores = ncores, function(net) {
-          mod_union_tempEq <- mod_union %>%
-            groupequal(matrix = net) %>% runmodel %>% suppressWarnings
+        # Set up parallel execution plan
+        future::plan(future::multisession, workers = ncores)
+
+        mods <- future.apply::future_lapply(c("beta", "omega_zeta_within"), function(net) {
+          mod_union %>%
+            groupequal(matrix = net) %>%
+            runmodel %>%
+            suppressWarnings
         })
 
         mod_union_tempEq <- mods[[1]]
@@ -482,7 +494,7 @@ IVPP_panelgvar <- function(data,
     # save networks
     save_matrix <- c("PDC", "beta", "omega_zeta_within")
 
-    mat <- parallel::mclapply(save_matrix, mc.cores = ncores, function(m){
+    mat <- lapply(save_matrix, function(m){
       m <- getmatrix(mod_pp, m)
       return(m)
     }) %>% setNames(save_matrix)
@@ -575,7 +587,7 @@ IVPP_panelgvar <- function(data,
 #'                             g_test_net = "temporal",
 #'                             net_type = "sparse",
 #'                             partial_prune = FALSE,
-#'                             ncores = 2)
+#'                             ncores = 1)
 #'
 #' # global test on cont
 #' omnibus_cont <- IVPP_tsgvar(data,
@@ -584,7 +596,7 @@ IVPP_panelgvar <- function(data,
 #'                             g_test_net = "contemporaneous",
 #'                             net_type = "sparse",
 #'                             partial_prune = FALSE,
-#'                             ncores = 2)
+#'                             ncores = 1)
 #'
 #' # partial prune on both networks
 #' pp_both <- IVPP_tsgvar(data,
@@ -594,7 +606,7 @@ IVPP_panelgvar <- function(data,
 #'                        net_type = "sparse",
 #'                        partial_prune = TRUE,
 #'                        prune_net = "both",
-#'                        ncores = 2)
+#'                        ncores = 1)
 #'}
 
 IVPP_tsgvar <- function(data,
@@ -722,8 +734,15 @@ IVPP_tsgvar <- function(data,
       # multi-group model estimation
       if (g_test_net == "temporal" | g_test_net == "contemporaneous") {
 
-        mods <- parallel::mclapply(c("beta", "omega_zeta"), mc.cores = ncores, function(net) {
-          mod_saturated %>% groupequal(matrix = net) %>% runmodel %>% suppressWarnings
+        # Set up parallel execution plan
+        future::plan(future::multisession, workers = ncores)
+
+        # estimate partially constrained models
+        mods <- future.apply::future_lapply(c("beta", "omega_zeta"), function(net) {
+          mod_saturated %>%
+            groupequal(matrix = net) %>%
+            runmodel %>%
+            suppressWarnings
         })
 
         mod_saturated_tempEq <- mods[[1]]
@@ -776,9 +795,15 @@ IVPP_tsgvar <- function(data,
       # estimate the multi-group model
       if (g_test_net == "temporal"|g_test_net == "contemporaneous"){
 
-        mods <- parallel::mclapply(c("beta", "omega_zeta"), mc.cores = ncores, function(net) {
-          mod_union_tempEq <- mod_union %>%
-            groupequal(matrix = net) %>% runmodel %>% suppressWarnings
+        # Set up parallel execution plan
+        future::plan(future::multisession, workers = ncores)
+
+        # estimate partially constrained models
+        mods <- future.apply::future_lapply(c("beta", "omega_zeta"), function(net) {
+          mod_union %>%
+            groupequal(matrix = net) %>%
+            runmodel %>%
+            suppressWarnings
         })
 
         mod_union_tempEq <- mods[[1]]
@@ -915,7 +940,7 @@ IVPP_tsgvar <- function(data,
     # save networks
     save_matrix <- c("PDC", "beta", "omega_zeta")
 
-    mat <- parallel::mclapply(save_matrix, mc.cores = ncores, function(m){
+    mat <- lapply(save_matrix, function(m){
       m <- getmatrix(mod_pp, m)
       return(m)
     }) %>% setNames(save_matrix)

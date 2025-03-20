@@ -1,6 +1,6 @@
 # IVPP 1.1.0
   * fixed the bug with match.arg
-  * used mcapply from parallel to reduce running time
+  * used future_lapply to reduce running time
   * updated example 
   * allow model generator to rewire temporal and contemporaneous networks separately
   

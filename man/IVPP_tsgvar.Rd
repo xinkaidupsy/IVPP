@@ -101,7 +101,7 @@ omnibus_temp <- IVPP_tsgvar(data,
                             g_test_net = "temporal",
                             net_type = "sparse",
                             partial_prune = FALSE,
-                            ncores = 2)
+                            ncores = 1)
 
 # global test on cont
 omnibus_cont <- IVPP_tsgvar(data,
@@ -110,7 +110,7 @@ omnibus_cont <- IVPP_tsgvar(data,
                             g_test_net = "contemporaneous",
                             net_type = "sparse",
                             partial_prune = FALSE,
-                            ncores = 2)
+                            ncores = 1)
 
 # partial prune on both networks
 pp_both <- IVPP_tsgvar(data,
@@ -120,6 +120,6 @@ pp_both <- IVPP_tsgvar(data,
                        net_type = "sparse",
                        partial_prune = TRUE,
                        prune_net = "both",
-                       ncores = 2)
+                       ncores = 1)
 }
 }
