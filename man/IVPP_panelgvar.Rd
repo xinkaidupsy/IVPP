@@ -10,7 +10,8 @@ IVPP_panelgvar(
   idvar,
   beepvar,
   groups,
-  test = c("both", "temporal", "contemporaneous"),
+  global = TRUE,
+  g_test_net = c("both", "temporal", "contemporaneous"),
   net_type = c("saturated", "sparse"),
   partial_prune = FALSE,
   prune_net = c("both", "temporal", "contemporaneous"),
@@ -18,6 +19,7 @@ IVPP_panelgvar(
   p_prune_alpha = 0.01,
   estimator = "FIML",
   standardize = c("none", "z", "quantile"),
+  ncores = 1,
   ...
 )
 }
@@ -32,7 +34,9 @@ IVPP_panelgvar(
 
 \item{groups}{A character string specifying the name of group variable}
 
-\item{test}{A character vector specifying the network you want to test group-equality on in the global invariance test.
+\item{global}{A logical value default to TRUE. If FALSE, the global invariance test is skipped.}
+
+\item{g_test_net}{A character vector specifying the network you want to test group-equality on in the global invariance test.
 Specify "both" if you want to test on both temporal or contemporaneous networks.
 Specify "temporal" if you want to test only on the temporal network.
 Specify "contemporaneous" if you want to test only on the contemporaneous network.
@@ -56,6 +60,8 @@ Specify "sparse" if you want to estimate and compare the pruned networks.}
 "none" (default) for no standardization, "z" for z-scores,
 and "quantile" for a non-parametric transformation to the quantiles of the marginal standard normal distribution.}
 
+\item{ncores}{A numeric value specifying the number of cores you want to use to run the analysis. Default to 1.}
+
 \item{...}{Additional arguments to be passed to the \code{\link[psychonetrics]{dlvm1}} function}
 }
 \value{
@@ -74,30 +80,65 @@ and the comparison between bothEq and contEq is a test for group equality in tem
 }
 \examples{
 \donttest{
+library(IVPP)
+
 # Generate the network
 net_ls <- gen_panelGVAR(n_node = 6,
-                        p_rewire = 0.5,
+                        p_rewire_temp = 0.5,
+                        p_rewire_cont = 0,
                         n_group = 2)
 
 # Generate the data
 data <- sim_panelGVAR(temp_base_ls = net_ls$temporal,
                       cont_base_ls = net_ls$omega_zeta_within,
-                      n_person = 250,
+                      n_person = 200,
                       n_time = 3,
                       n_group = 2,
                       n_node = 6)
 
-# IVPP test on the temporal network
-ivpp <- IVPP_panelgvar(data,
-                       vars = paste0("V",1:6),
-                       idvar = "subject",
-                       beepvar = "time",
-                       groups = "group",
-                       test = "temporal",
-                       net_type = "saturated",
-                       prune_net = "temporal",
-                       partial_prune = TRUE,
-                       estimator = "FIML",
-                       standardize = "z")
+# global test on both nets
+omnibus_both <- IVPP_panelgvar(data,
+                               vars = paste0("V",1:6),
+                               idvar = "subject",
+                               beepvar = "time",
+                               groups = "group",
+                               g_test_net = "both",
+                               net_type = "sparse",
+                               partial_prune = FALSE,
+                               ncores = 2)
+
+# global test on temporal
+omnibus_temp <- IVPP_panelgvar(data,
+                               vars = paste0("V",1:6),
+                               idvar = "subject",
+                               beepvar = "time",
+                               groups = "group",
+                               g_test_net = "temporal",
+                               net_type = "sparse",
+                               partial_prune = FALSE,
+                               ncores = 2)
+
+# global test on cont
+omnibus_cont <- IVPP_panelgvar(data,
+                               vars = paste0("V",1:6),
+                               idvar = "subject",
+                               beepvar = "time",
+                               groups = "group",
+                               g_test_net = "contemporaneous",
+                               net_type = "sparse",
+                               partial_prune = FALSE,
+                               ncores = 2)
+
+# partial prune on both networks
+pp_both <- IVPP_panelgvar(data,
+                          vars = paste0("V",1:6),
+                          idvar = "subject",
+                          beepvar = "time",
+                          groups = "group",
+                          global = FALSE,
+                          net_type = "sparse",
+                          partial_prune = TRUE,
+                          prune_net = "cont",
+                          ncores = 2)
 }
 }

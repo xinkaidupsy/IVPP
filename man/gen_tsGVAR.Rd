@@ -4,12 +4,14 @@
 \alias{gen_tsGVAR}
 \title{Generate time-series GVAR model for multiple (heterogeneous) individuals}
 \usage{
-gen_tsGVAR(n_node = 6, p_rewire = 0.5, n_persons = 1)
+gen_tsGVAR(n_node = 6, p_rewire_temp = 0.5, p_rewire_cont = 0.5, n_persons = 1)
 }
 \arguments{
 \item{n_node}{an integer denoting the number of nodes}
 
-\item{p_rewire}{a numeric value between 0-1 denoting the extent of individual difference}
+\item{p_rewire_temp}{a numeric value between 0-1 denoting the extent of individual difference in the temporal network}
+
+\item{p_rewire_cont}{a numeric value between 0-1 denoting the extent of individual difference in the contemporaneous network}
 
 \item{n_persons}{an integer denoting the number of individuals to generate tsGVAR for}
 }
@@ -32,6 +34,7 @@ library(IVPP)
 
 # Generate the network
 net_ls <- gen_tsGVAR(n_node = 6,
-                     p_rewire = 0.5,
-                     n_persons = 3)
+                     p_rewire_temp = 0.5,
+                     p_rewire_cont = 0,
+                     n_persons = 2)
 }

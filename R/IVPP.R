@@ -31,6 +31,7 @@
 #' @param standardize A character string specifying the type of standardization to be used.
 #' "none" (default) for no standardization, "z" for z-scores,
 #' and "quantile" for a non-parametric transformation to the quantiles of the marginal standard normal distribution.
+#' @param ncores A numeric value specifying the number of cores you want to use to run the analysis. Default to 1.
 #' @param ... Additional arguments to be passed to the \code{\link[psychonetrics]{dlvm1}} function
 #'
 #' @details
@@ -71,7 +72,7 @@
 #'                                g_test_net = "both",
 #'                                net_type = "sparse",
 #'                                partial_prune = FALSE,
-#'                                ncores = parallel::detectCores())
+#'                                ncores = 2)
 #'
 #' # global test on temporal
 #' omnibus_temp <- IVPP_panelgvar(data,
@@ -82,7 +83,7 @@
 #'                                g_test_net = "temporal",
 #'                                net_type = "sparse",
 #'                                partial_prune = FALSE,
-#'                                ncores = parallel::detectCores())
+#'                                ncores = 2)
 #'
 #' # global test on cont
 #' omnibus_cont <- IVPP_panelgvar(data,
@@ -93,7 +94,7 @@
 #'                                g_test_net = "contemporaneous",
 #'                                net_type = "sparse",
 #'                                partial_prune = FALSE,
-#'                                ncores = parallel::detectCores())
+#'                                ncores = 2)
 #'
 #' # partial prune on both networks
 #' pp_both <- IVPP_panelgvar(data,
@@ -105,7 +106,7 @@
 #'                           net_type = "sparse",
 #'                           partial_prune = TRUE,
 #'                           prune_net = "cont",
-#'                           ncores = parallel::detectCores())
+#'                           ncores = 2)
 #'}
 
 IVPP_panelgvar <- function(data,
@@ -540,6 +541,7 @@ IVPP_panelgvar <- function(data,
 #' @param standardize A character string specifying the type of standardization to be used.
 #' "none" (default) for no standardization, "z" for z-scores,
 #' and "quantile" for a non-parametric transformation to the quantiles of the marginal standard normal distribution.
+#' @param ncores A numeric value specifying the number of cores you want to use to run the analysis. Default to 1.
 #' @param ... Additional arguments to be passed to the \code{\link[psychonetrics]{dlvm1}} function
 #' @details
 #' The comparison between the fully unconstrained (free) model and tempEq model is a test for group equality in temporal networks.
@@ -552,9 +554,12 @@ IVPP_panelgvar <- function(data,
 #' @export IVPP_tsgvar
 #' @examples
 #' \donttest{
+#' library(IVPP)
+#'
 #' # Generate the network
 #' net_ls <- gen_tsGVAR(n_node = 6,
-#'                      p_rewire = 0.5,
+#'                      p_rewire_temp = 0.5,
+#'                      p_rewire_cont = 0,
 #'                      n_persons = 2)
 #'
 #' # Generate the data
@@ -573,6 +578,45 @@ IVPP_panelgvar <- function(data,
 #'                        partial_prune = TRUE,
 #'                        estimator = "FIML",
 #'                        standardize = "z")
+#' # Generate the network
+#' net_ls <- gen_tsGVAR(n_node = 6,
+#'                      p_rewire_temp = 0,
+#'                      p_rewire_cont = 0.5,
+#'                      n_persons = 2)
+#'
+#' # Generate the data
+#' data <- sim_tsGVAR(beta_base_ls = net_ls$beta,
+#'                    kappa_base_ls = net_ls$kappa,
+#'                    # n_person = 2,
+#'                    n_time = 100)
+#'
+#' # global test on temporal
+#' omnibus_temp <- IVPP_tsgvar(data,
+#'                             vars = paste0("V",1:6),
+#'                             idvar = "id",
+#'                             g_test_net = "temporal",
+#'                             net_type = "sparse",
+#'                             partial_prune = FALSE,
+#'                             ncores = 2)
+#'
+#' # global test on cont
+#' omnibus_cont <- IVPP_tsgvar(data,
+#'                             vars = paste0("V",1:6),
+#'                             idvar = "id",
+#'                             g_test_net = "contemporaneous",
+#'                             net_type = "sparse",
+#'                             partial_prune = FALSE,
+#'                             ncores = 2)
+#'
+#' # partial prune on both networks
+#' pp_both <- IVPP_tsgvar(data,
+#'                        vars = paste0("V",1:6),
+#'                        idvar = "id",
+#'                        global = FALSE,
+#'                        net_type = "sparse",
+#'                        partial_prune = TRUE,
+#'                        prune_net = "temp",
+#'                        ncores = 2)
 #'}
 
 IVPP_tsgvar <- function(data,

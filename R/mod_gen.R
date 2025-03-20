@@ -22,8 +22,9 @@
 #' library(IVPP)
 #' # Generate the network
 #' net_ls <- gen_panelGVAR(n_node = 6,
-#'                         p_rewire = 0.5,
-#'                         n_group = 3)
+#'                         p_rewire_temp = 0.5,
+#'                         p_rewire_cont = 0,
+#'                         n_group = 2)
 
 
 
@@ -136,8 +137,9 @@ gen_panelGVAR <- function(n_node = 6,
 #'
 #' # Generate the network
 #' net_ls <- gen_tsGVAR(n_node = 6,
-#'                      p_rewire = 0.5,
-#'                      n_persons = 3)
+#'                      p_rewire_temp = 0.5,
+#'                      p_rewire_cont = 0,
+#'                      n_persons = 2)
 
 
 gen_tsGVAR <- function(n_node = 6,

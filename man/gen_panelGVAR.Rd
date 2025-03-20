@@ -4,12 +4,19 @@
 \alias{gen_panelGVAR}
 \title{Generate a (multi-group) panelGVAR model}
 \usage{
-gen_panelGVAR(n_node = 6, p_rewire = 0.5, n_group = 1)
+gen_panelGVAR(
+  n_node = 6,
+  p_rewire_temp = 0.5,
+  p_rewire_cont = 0.5,
+  n_group = 1
+)
 }
 \arguments{
 \item{n_node}{an integer denoting the number of nodes}
 
-\item{p_rewire}{a numeric value between 0-1 denoting the extent of group difference}
+\item{p_rewire_temp}{a numeric value between 0-1 denoting the extent of group difference in the temporal network}
+
+\item{p_rewire_cont}{a numeric value between 0-1 denoting the extent of group difference in the contemporaneous network}
 
 \item{n_group}{an integer denoting the number of groups}
 }
@@ -30,6 +37,7 @@ kappa can be further standardized to the contemporaneous networks (\code{omega_z
 library(IVPP)
 # Generate the network
 net_ls <- gen_panelGVAR(n_node = 6,
-                        p_rewire = 0.5,
-                        n_group = 3)
+                        p_rewire_temp = 0.5,
+                        p_rewire_cont = 0,
+                        n_group = 2)
 }

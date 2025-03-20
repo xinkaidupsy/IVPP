@@ -10,7 +10,8 @@ IVPP_tsgvar(
   idvar,
   dayvar,
   beepvar,
-  test = c("both", "temporal", "contemporaneous"),
+  global = TRUE,
+  g_test_net = c("both", "temporal", "contemporaneous"),
   net_type = c("saturated", "sparse"),
   partial_prune = FALSE,
   prune_net = c("both", "temporal", "contemporaneous"),
@@ -18,6 +19,7 @@ IVPP_tsgvar(
   p_prune_alpha = 0.01,
   estimator = "FIML",
   standardize = c("none", "z", "quantile"),
+  ncores = 1,
   ...
 )
 }
@@ -32,7 +34,9 @@ IVPP_tsgvar(
 
 \item{beepvar}{A character string specifying the name of variable indicating the measurement number at each day}
 
-\item{test}{A character vector specifying the network you want to test group-equality on in the global invariance test.
+\item{global}{A logical value default to TRUE. If FALSE, the global invariance test is skipped.}
+
+\item{g_test_net}{A character vector specifying the network you want to test group-equality on in the global invariance test.
 Specify "both" if you want to test on both temporal or contemporaneous networks.
 Specify "temporal" if you want to test only on the temporal network.
 Specify "contemporaneous" if you want to test only on the contemporaneous network.
@@ -56,6 +60,8 @@ Specify "sparse" if you want to estimate and compare the pruned networks.}
 "none" (default) for no standardization, "z" for z-scores,
 and "quantile" for a non-parametric transformation to the quantiles of the marginal standard normal distribution.}
 
+\item{ncores}{A numeric value specifying the number of cores you want to use to run the analysis. Default to 1.}
+
 \item{...}{Additional arguments to be passed to the \code{\link[psychonetrics]{dlvm1}} function}
 }
 \value{
@@ -74,9 +80,12 @@ and the comparison between bothEq and contEq is a test for group equality in tem
 }
 \examples{
 \donttest{
+library(IVPP)
+
 # Generate the network
 net_ls <- gen_tsGVAR(n_node = 6,
-                     p_rewire = 0.5,
+                     p_rewire_temp = 0.5,
+                     p_rewire_cont = 0,
                      n_persons = 2)
 
 # Generate the data
@@ -85,15 +94,54 @@ data <- sim_tsGVAR(beta_base_ls = net_ls$beta,
                    # n_person = 2,
                    n_time = 50)
 
-# IVPP test on
+# IVPP test on temporal network
 ivpp_ts <- IVPP_tsgvar(data = data,
                        vars = paste0("V",1:6),
                        idvar = "id",
-                       test = "temporal",
+                       g_test_net = "temporal",
                        net_type = "saturated",
                        prune_net = "temporal",
                        partial_prune = TRUE,
                        estimator = "FIML",
                        standardize = "z")
+# Generate the network
+net_ls <- gen_tsGVAR(n_node = 6,
+                     p_rewire_temp = 0,
+                     p_rewire_cont = 0.5,
+                     n_persons = 2)
+
+# Generate the data
+data <- sim_tsGVAR(beta_base_ls = net_ls$beta,
+                   kappa_base_ls = net_ls$kappa,
+                   # n_person = 2,
+                   n_time = 100)
+
+# global test on temporal
+omnibus_temp <- IVPP_tsgvar(data,
+                            vars = paste0("V",1:6),
+                            idvar = "id",
+                            g_test_net = "temporal",
+                            net_type = "sparse",
+                            partial_prune = FALSE,
+                            ncores = 2)
+
+# global test on cont
+omnibus_cont <- IVPP_tsgvar(data,
+                            vars = paste0("V",1:6),
+                            idvar = "id",
+                            g_test_net = "contemporaneous",
+                            net_type = "sparse",
+                            partial_prune = FALSE,
+                            ncores = 2)
+
+# partial prune on both networks
+pp_both <- IVPP_tsgvar(data,
+                       vars = paste0("V",1:6),
+                       idvar = "id",
+                       global = FALSE,
+                       net_type = "sparse",
+                       partial_prune = TRUE,
+                       prune_net = "temp",
+                       ncores = 2)
 }
 }
