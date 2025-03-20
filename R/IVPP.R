@@ -1,3 +1,7 @@
+###
+# add option to not run global test
+
+
 
 #' The invariance partial pruning (IVPP) algorithm for panel GVAR models
 #'
@@ -10,7 +14,8 @@
 #' @param idvar A character string specifying subject IDs
 #' @param beepvar A character string specifying the name of wave (time) variable
 #' @param groups A character string specifying the name of group variable
-#' @param test A character vector specifying the network you want to test group-equality on in the global invariance test.
+#' @param global A logical value default to TRUE. If FALSE, the global invariance test is skipped.
+#' @param g_test_net A character vector specifying the network you want to test group-equality on in the global invariance test.
 #' Specify "both" if you want to test on both temporal or contemporaneous networks.
 #' Specify "temporal" if you want to test only on the temporal network.
 #' Specify "contemporaneous" if you want to test only on the contemporaneous network.
@@ -41,31 +46,66 @@
 #' @export IVPP_panelgvar
 #' @examples
 #' \donttest{
+#' library(IVPP)
+#'
 #' # Generate the network
 #' net_ls <- gen_panelGVAR(n_node = 6,
-#'                         p_rewire = 0.5,
+#'                         p_rewire_temp = 0.5,
+#'                         p_rewire_cont = 0,
 #'                         n_group = 2)
 #'
-#'# Generate the data
+#' # Generate the data
 #' data <- sim_panelGVAR(temp_base_ls = net_ls$temporal,
 #'                       cont_base_ls = net_ls$omega_zeta_within,
-#'                       n_person = 250,
+#'                       n_person = 200,
 #'                       n_time = 3,
 #'                       n_group = 2,
 #'                       n_node = 6)
 #'
-#' # IVPP test on the temporal network
-#' ivpp <- IVPP_panelgvar(data,
-#'                        vars = paste0("V",1:6),
-#'                        idvar = "subject",
-#'                        beepvar = "time",
-#'                        groups = "group",
-#'                        test = "temporal",
-#'                        net_type = "saturated",
-#'                        prune_net = "temporal",
-#'                        partial_prune = TRUE,
-#'                        estimator = "FIML",
-#'                        standardize = "z")
+#' # global test on both nets
+#' omnibus_both <- IVPP_panelgvar(data,
+#'                                vars = paste0("V",1:6),
+#'                                idvar = "subject",
+#'                                beepvar = "time",
+#'                                groups = "group",
+#'                                g_test_net = "both",
+#'                                net_type = "sparse",
+#'                                partial_prune = FALSE,
+#'                                ncores = parallel::detectCores())
+#'
+#' # global test on temporal
+#' omnibus_temp <- IVPP_panelgvar(data,
+#'                                vars = paste0("V",1:6),
+#'                                idvar = "subject",
+#'                                beepvar = "time",
+#'                                groups = "group",
+#'                                g_test_net = "temporal",
+#'                                net_type = "sparse",
+#'                                partial_prune = FALSE,
+#'                                ncores = parallel::detectCores())
+#'
+#' # global test on cont
+#' omnibus_cont <- IVPP_panelgvar(data,
+#'                                vars = paste0("V",1:6),
+#'                                idvar = "subject",
+#'                                beepvar = "time",
+#'                                groups = "group",
+#'                                g_test_net = "contemporaneous",
+#'                                net_type = "sparse",
+#'                                partial_prune = FALSE,
+#'                                ncores = parallel::detectCores())
+#'
+#' # partial prune on both networks
+#' pp_both <- IVPP_panelgvar(data,
+#'                           vars = paste0("V",1:6),
+#'                           idvar = "subject",
+#'                           beepvar = "time",
+#'                           groups = "group",
+#'                           global = FALSE,
+#'                           net_type = "sparse",
+#'                           partial_prune = TRUE,
+#'                           prune_net = "cont",
+#'                           ncores = parallel::detectCores())
 #'}
 
 IVPP_panelgvar <- function(data,
@@ -74,7 +114,8 @@ IVPP_panelgvar <- function(data,
                        beepvar,
                        groups,
                        # test = c("omnibus", "partial_prune"),
-                       test = c("both", "temporal", "contemporaneous"),
+                       global = TRUE,
+                       g_test_net = c("both", "temporal", "contemporaneous"),
                        # vsModel = c("bothEq", "free"),
                        net_type = c("saturated", "sparse"),
                        partial_prune = FALSE,
@@ -83,13 +124,16 @@ IVPP_panelgvar <- function(data,
                        p_prune_alpha = 0.01,
                        estimator = "FIML",
                        standardize = c("none", "z","quantile"),
+                       ncores = 1,
                        ...){
+
 
   # Validate arguments to ensure single value
   prune_net <- match.arg(prune_net, c("both", "temporal", "contemporaneous"))
-  test <- match.arg(test)
-  net_type <- match.arg(net_type)
-  standardize <- match.arg(standardize)
+  g_test_net <- match.arg(g_test_net, c("both", "temporal", "contemporaneous"))
+  net_type <- match.arg(net_type, c("sparse", "saturated"))
+  standardize <- match.arg(standardize,  c("none", "z","quantile"))
+  # browser()
 
   # ----- argument check -----
 
@@ -136,17 +180,17 @@ IVPP_panelgvar <- function(data,
   }
 
   # test & prune_net
-  if(!(test %in% c("both", "temporal", "contemporaneous"))){
-    stop("network to test should be either 'both', 'temporal', or 'contemporaneous'")
-  }
+  # if(!(g_test_net %in% c("both", "temporal", "contemporaneous"))){
+  #   stop("network to test should be either 'both', 'temporal', or 'contemporaneous'")
+  # }
+  #
+  # if(partial_prune &
+  #    !(prune_net %in% c("both", "temporal", "contemporaneous"))){
+  #   stop("prune_net should be either 'both', 'temporal', or 'contemporaneous'")
+  # }
 
-  if(partial_prune &
-     !(prune_net %in% c("both", "temporal", "contemporaneous"))){
-    stop("prune_net should be either 'both', 'temporal', or 'contemporaneous'")
-  }
-
-  if(partial_prune &
-     prune_net != test){
+  if(partial_prune & global &
+     prune_net != g_test_net){
     stop("The network you are partial pruning is different than the network you are testing equality on")
   }
 
@@ -155,9 +199,9 @@ IVPP_panelgvar <- function(data,
     stop("specify the type of networks to be compared to net_type")
   }
 
-  if(!(net_type %in% c("saturated", "sparse"))){
-    stop("network_type is either 'saturated or 'sparse'")
-  }
+  # if(!(net_type %in% c("saturated", "sparse"))){
+  #   stop("network_type is either 'saturated or 'sparse'")
+  # }
 
   # estimator
   if (estimator != "FIML"){
@@ -200,156 +244,149 @@ IVPP_panelgvar <- function(data,
   #   }
   # )
 
-  # omnibus test for saturated & sparse networks
-  if(net_type == "saturated"){
 
-    # estimate the fully-constrained model
-    mod_saturated_bothEq <- mod_saturated %>%
-      groupequal(matrix = "beta") %>%
-      groupequal(matrix = "omega_zeta_within") %>% runmodel %>% suppressWarnings
+  if (global) {
+    # omnibus test for saturated & sparse networks
+    if(net_type == "saturated"){
 
-    # model comparisons
-    if(test == "both"){
-
-      # compare with the free model
-      comp_vs_free <- comp_vs_bothEq <- psychonetrics::compare(free = mod_saturated,
-                                                               bothEq = mod_saturated_bothEq)
-
-      # end: if(test == "both")
-    } else if (test == "temporal"){
-
-      # estimate the model that constrains temporal networks to be equal
-      mod_saturated_tempEq <- mod_saturated %>%
-        groupequal(matrix = "beta") %>% runmodel %>% suppressWarnings
-
-      # estimate the model that constrains contemporaneous networks to be equal
-      mod_saturated_contEq <- mod_saturated %>%
+      # estimate the fully-constrained model
+      mod_saturated_bothEq <- mod_saturated %>%
+        groupequal(matrix = "beta") %>%
         groupequal(matrix = "omega_zeta_within") %>% runmodel %>% suppressWarnings
 
-      # compare with the free model
-      comp_vs_free <- psychonetrics::compare(free = mod_saturated,
-                                     tempEq = mod_saturated_tempEq)
+      # multi-group model estimation
+      if (g_test_net == "temporal" | g_test_net == "contemporaneous") {
 
-      # compare with the full-constrained model
-      comp_vs_bothEq <- psychonetrics::compare(contEq = mod_saturated_contEq,
-                                               bothEq = mod_saturated_bothEq)
+        mods <- parallel::mclapply(c("beta", "omega_zeta_within"), mc.cores = ncores, function(net) {
+          mod_saturated %>% groupequal(matrix = net) %>% runmodel %>% suppressWarnings
+        })
 
-    # end: if(test == "temporal")
-    } else if (test == "contemporaneous"){
+        mod_saturated_tempEq <- mods[[1]]
+        mod_saturated_contEq <- mods[[2]]
 
-      # estimate the model that constrains temporal networks to be equal
-      mod_saturated_tempEq <- mod_saturated %>%
-        groupequal(matrix = "beta") %>% runmodel %>% suppressWarnings
+      }
 
-      # estimate the model that constrains contemporaneous networks to be equal
-      mod_saturated_contEq <- mod_saturated %>%
+      # model comparisons
+      if(g_test_net == "both"){
+
+        # compare with the free model
+        comp_vs_free <- comp_vs_bothEq <- psychonetrics::compare(free = mod_saturated,
+                                                                 bothEq = mod_saturated_bothEq)
+
+        # end: if(g_test_net == "both")
+      } else if (g_test_net == "temporal") {
+        # compare with the free model
+        comp_vs_free <- psychonetrics::compare(free = mod_saturated,
+                                               tempEq = mod_saturated_tempEq)
+
+        # compare with the full-constrained model
+        comp_vs_bothEq <- psychonetrics::compare(contEq = mod_saturated_contEq,
+                                                 bothEq = mod_saturated_bothEq)
+
+      } else if (g_test_net == "contemporaneous"){
+
+        # compare with the free model
+        comp_vs_free <- psychonetrics::compare(free = mod_saturated,
+                                               contEq = mod_saturated_contEq)
+
+        # compare with the full-constrained model
+        comp_vs_bothEq <- psychonetrics::compare(tempEq = mod_saturated_tempEq,
+                                                 bothEq = mod_saturated_bothEq)
+
+        # end: if(g_test_net == "contemporaneous")
+      }
+
+
+      # end: if(net_type == "saturated")
+    } else { # if (net_type == "pruned")
+
+      # The free union model
+      mod_union <- mod_saturated %>% prune(alpha = prune_alpha) %>% unionmodel %>% runmodel %>% suppressWarnings
+
+      # the fully-constrained union model
+      mod_union_bothEq <- mod_union %>%
+        groupequal(matrix = "beta") %>%
         groupequal(matrix = "omega_zeta_within") %>% runmodel %>% suppressWarnings
 
-      # compare with the free model
-      comp_vs_free <- psychonetrics::compare(free = mod_saturated,
-                                             contEq = mod_saturated_contEq)
+      # estimate the multi-group model
+      if (g_test_net == "temporal"|g_test_net == "contemporaneous"){
 
-      # compare with the full-constrained model
-      comp_vs_bothEq <- psychonetrics::compare(tempEq = mod_saturated_tempEq,
-                                               bothEq = mod_saturated_bothEq)
+        mods <- parallel::mclapply(c("beta", "omega_zeta_within"), mc.cores = ncores, function(net) {
+          mod_union_tempEq <- mod_union %>%
+            groupequal(matrix = net) %>% runmodel %>% suppressWarnings
+        })
 
-    # end: if(test == "contemporaneous")
-    }
+        mod_union_tempEq <- mods[[1]]
+        mod_union_contEq <- mods[[2]]
 
+      }
 
-  # end: if(net_type == "saturated")
-  } else { # if (net_type == "pruned")
+      # model comparison
+      if(g_test_net == "both"){
 
-    # The free union model
-    mod_union <- mod_saturated %>% prune(alpha = prune_alpha) %>% unionmodel %>% runmodel %>% suppressWarnings
+        # compare with the free model
+        comp_vs_free <- comp_vs_bothEq <- psychonetrics::compare(free = mod_union,
+                                                                 bothEq = mod_union_bothEq)
 
-    # the fully-constrained union model
-    mod_union_bothEq <- mod_union %>%
-      groupequal(matrix = "beta") %>%
-      groupequal(matrix = "omega_zeta_within") %>% runmodel %>% suppressWarnings
+        # end: if(g_test_net == "both")
+      } else if (g_test_net == "temporal") {
 
-    # model comparisons
-    if(test == "both"){
+        # compare with the free model
+        comp_vs_free <- psychonetrics::compare(free = mod_union,
+                                               tempEq = mod_union_tempEq)
 
-      # compare with the free model
-      comp_vs_free <- comp_vs_bothEq <- psychonetrics::compare(free = mod_union,
-                                                               bothEq = mod_union_bothEq)
+        # compare with the full-constrained model
+        comp_vs_bothEq <- psychonetrics::compare(contEq = mod_union_contEq,
+                                                 bothEq = mod_union_bothEq)
 
-      # end: if(test == "both")
-    } else if (test == "temporal"){
+      } else if (g_test_net == "contemporaneous"){
 
-      # estimate the model that constrains temporal networks to be equal
-      mod_union_tempEq <- mod_union %>%
-        groupequal(matrix = "beta") %>% runmodel %>% suppressWarnings
+        # compare with the free model
+        comp_vs_free <- psychonetrics::compare(free = mod_union,
+                                               contEq = mod_union_contEq)
 
-      # estimate the model that constrains contemporaneous networks to be equal
-      mod_union_contEq <- mod_union %>%
-        groupequal(matrix = "omega_zeta_within") %>% runmodel %>% suppressWarnings
+        # compare with the full-constrained model
+        comp_vs_bothEq <- psychonetrics::compare(tempEq = mod_union_tempEq,
+                                                 bothEq = mod_union_bothEq)
 
-      # compare with the free model
-      comp_vs_free <- psychonetrics::compare(free = mod_union,
-                                             tempEq = mod_union_tempEq)
-
-      # compare with the full-constrained model
-      comp_vs_bothEq <- psychonetrics::compare(contEq = mod_union_contEq,
-                                               bothEq = mod_union_bothEq)
-
-      # end: if(test == "temporal")
-    } else if (test == "contemporaneous"){
-
-      # estimate the model that constrains temporal networks to be equal
-      mod_union_tempEq <- mod_union %>%
-        groupequal(matrix = "beta") %>% runmodel %>% suppressWarnings
-
-      # estimate the model that constrains contemporaneous networks to be equal
-      mod_union_contEq <- mod_union %>%
-        groupequal(matrix = "omega_zeta_within") %>% runmodel %>% suppressWarnings
-
-      # compare with the free model
-      comp_vs_free <- psychonetrics::compare(free = mod_union,
-                                             contEq = mod_union_contEq)
-
-      # compare with the full-constrained model
-      comp_vs_bothEq <- psychonetrics::compare(tempEq = mod_union_tempEq,
-                                               bothEq = mod_union_bothEq)
-
-    # end: if(test == "contemporaneous")
-    }  # end: if(test == xxx)
+        # end: if(g_test_net == "contemporaneous")
+      }  # end: if(g_test_net == xxx)
 
 
-  } # end: else (net_type == "pruned")
+    } # end: else (net_type == "pruned")
 
 
-  # generate the comparison table
-  tab_vs_free <- data.frame(
-    AIC = comp_vs_free$AIC,
-    delta_AIC = c(NA, diff(comp_vs_free$AIC)),
-    BIC = comp_vs_free$BIC,
-    delta_BIC = c(NA, diff(comp_vs_free$BIC)),
-    row.names = comp_vs_free$model
-    # chi_sq = comp_vs_free$Chisq,
-    # delta_chisq = comp_vs_free$Chisq_diff,
-    # p_value = comp_vs_free$p_value
-  )
+    # generate the comparison table
+    tab_vs_free <- data.frame(
+      AIC = comp_vs_free$AIC,
+      delta_AIC = c(NA, diff(comp_vs_free$AIC)),
+      BIC = comp_vs_free$BIC,
+      delta_BIC = c(NA, diff(comp_vs_free$BIC)),
+      row.names = comp_vs_free$model
+      # chi_sq = comp_vs_free$Chisq,
+      # delta_chisq = comp_vs_free$Chisq_diff,
+      # p_value = comp_vs_free$p_value
+    )
 
-  tab_vs_bothEq <- data.frame(
-    AIC = comp_vs_bothEq$AIC,
-    delta_AIC = c(NA, diff(comp_vs_bothEq$AIC)),
-    BIC = comp_vs_bothEq$BIC,
-    delta_BIC = c(NA, diff(comp_vs_bothEq$BIC)),
-    row.names = comp_vs_bothEq$model
-    # chi_sq = comp_vs_bothEq$Chisq,
-    # delta_chisq = comp_vs_bothEq$Chisq_diff,
-    # p_value = comp_vs_bothEq$p_value
-  )
+    tab_vs_bothEq <- data.frame(
+      AIC = comp_vs_bothEq$AIC,
+      delta_AIC = c(NA, diff(comp_vs_bothEq$AIC)),
+      BIC = comp_vs_bothEq$BIC,
+      delta_BIC = c(NA, diff(comp_vs_bothEq$BIC)),
+      row.names = comp_vs_bothEq$model
+      # chi_sq = comp_vs_bothEq$Chisq,
+      # delta_chisq = comp_vs_bothEq$Chisq_diff,
+      # p_value = comp_vs_bothEq$p_value
+    )
 
-  # return the comparison results
-  tab <- list(
-    vs_free = tab_vs_free,
-    vs_bothEq = tab_vs_bothEq
-  )
-#
-#   class(tab_vs_free) <- class(tab_vs_bothEq) <- c("panel_omni", "data.frame")
+    # return the comparison results
+    tab <- list(
+      vs_free = tab_vs_free,
+      vs_bothEq = tab_vs_bothEq
+    )
+    #
+    #   class(tab_vs_free) <- class(tab_vs_bothEq) <- c("panel_omni", "data.frame")
+  } # end: if (global)
 
   # ----- partial pruning -----
 
@@ -375,16 +412,20 @@ IVPP_panelgvar <- function(data,
       # names(mat) <- gsub("omega_zeta_within", "contemporaneous", names(mat))
 
 
-
-      # end: if(test == "both")
+      # end: if(g_test_net == "both")
     } else if (prune_net == "temporal"){
 
       mod_pp <- mod_saturated %>%
-        groupequal(matrix = "omega_zeta_within")%>%
+        groupequal(matrix = "omega_zeta_within") %>%
         partialprune(matrices = "beta",
                      alpha = p_prune_alpha,
                      return = "partialprune") %>%
         runmodel %>% suppressWarnings
+
+      # prune the other network if sparse networks are requested
+      if(net_type == "sparse") {
+        mod_pp <- mod_pp %>% prune(matrices = "omega_zeta_within") %>% runmodel %>% suppressWarnings
+      }
 
       # # save networks
       # save_matrix = c("PDC", "beta", "omega_zeta_within")
@@ -403,8 +444,7 @@ IVPP_panelgvar <- function(data,
       # }
 
 
-
-      # end: if(test == "temporal")
+      # end: if(g_test_net == "temporal")
     } else if (prune_net == "contemporaneous"){
 
       mod_pp <- mod_saturated %>%
@@ -413,6 +453,11 @@ IVPP_panelgvar <- function(data,
                      alpha = p_prune_alpha,
                      return = "partialprune") %>%
         runmodel %>% suppressWarnings
+
+      # prune the other network if sparse networks are requested
+      if(net_type == "sparse") {
+        mod_pp <- mod_pp %>% prune(matrices = "beta") %>% runmodel %>% suppressWarnings
+      }
 
       # # save networks
       # save_matrix = c("PDC", "beta", "omega_zeta_within")
@@ -431,12 +476,12 @@ IVPP_panelgvar <- function(data,
       #   mat$beta[[g]] <- mat$beta[[1]]
       # }
 
-    } # end: if(test == xxx)
+    } # end: if(g_test_net == xxx)
 
     # save networks
-    save_matrix = c("PDC", "beta", "omega_zeta_within")
+    save_matrix <- c("PDC", "beta", "omega_zeta_within")
 
-    mat <- lapply(save_matrix, function(m){
+    mat <- parallel::mclapply(save_matrix, mc.cores = ncores, function(m){
       m <- getmatrix(mod_pp, m)
       return(m)
     }) %>% setNames(save_matrix)
@@ -452,10 +497,18 @@ IVPP_panelgvar <- function(data,
     mat <- c("Specified partial_prune = FALSE. No partial pruning results.")
   }# end if (partial_prune)
 
-  return(list(
-    omnibus = tab,
-    partial_prune = mat
-  ))
+  if (global) {
+    return(list(
+      omnibus = tab,
+      partial_prune = mat
+    ))
+  } else {
+    return(list(
+      partial_prune = mat
+    ))
+  }
+
+
 
 } # end: IVPP_panel
 
@@ -470,7 +523,8 @@ IVPP_panelgvar <- function(data,
 #' @param idvar A character string specifying the IDs of subjects you want to compare
 #' @param dayvar A character string specifying the name of day variable
 #' @param beepvar A character string specifying the name of variable indicating the measurement number at each day
-#' @param test A character vector specifying the network you want to test group-equality on in the global invariance test.
+#' @param global A logical value default to TRUE. If FALSE, the global invariance test is skipped.
+#' @param g_test_net A character vector specifying the network you want to test group-equality on in the global invariance test.
 #' Specify "both" if you want to test on both temporal or contemporaneous networks.
 #' Specify "temporal" if you want to test only on the temporal network.
 #' Specify "contemporaneous" if you want to test only on the contemporaneous network.
@@ -509,11 +563,11 @@ IVPP_panelgvar <- function(data,
 #'                    # n_person = 2,
 #'                    n_time = 50)
 #'
-#' # IVPP test on
+#' # IVPP test on temporal network
 #' ivpp_ts <- IVPP_tsgvar(data = data,
 #'                        vars = paste0("V",1:6),
 #'                        idvar = "id",
-#'                        test = "temporal",
+#'                        g_test_net = "temporal",
 #'                        net_type = "saturated",
 #'                        prune_net = "temporal",
 #'                        partial_prune = TRUE,
@@ -527,7 +581,8 @@ IVPP_tsgvar <- function(data,
                         dayvar,
                         beepvar,
                         # test = c("omnibus", "partial_prune"),
-                        test = c("both", "temporal", "contemporaneous"),
+                        global = TRUE,
+                        g_test_net = c("both", "temporal", "contemporaneous"),
                         # vsModel = c("bothEq", "free"),
                         net_type = c("saturated", "sparse"),
                         partial_prune = FALSE,
@@ -536,13 +591,14 @@ IVPP_tsgvar <- function(data,
                         p_prune_alpha = 0.01,
                         estimator = "FIML",
                         standardize = c("none", "z","quantile"),
+                        ncores = 1,
                         ...){
 
   # Validate arguments to ensure single value
   prune_net <- match.arg(prune_net, c("both", "temporal", "contemporaneous"))
-  test <- match.arg(test)
-  net_type <- match.arg(net_type)
-  standardize <- match.arg(standardize)
+  g_test_net <- match.arg(g_test_net, c("both", "temporal", "contemporaneous"))
+  net_type <- match.arg(net_type, c("sparse", "saturated"))
+  standardize <- match.arg(standardize,  c("none", "z","quantile"))
 
   # ----- argument check -----
 
@@ -591,18 +647,18 @@ IVPP_tsgvar <- function(data,
     stop("partial_prune should be a logical value")
   }
 
-  # test & prune_net
-  if(!(test %in% c("both", "temporal", "contemporaneous"))){
-    stop("network to test should be either 'both', 'temporal', or 'contemporaneous'")
-  }
+  # g_test_net & prune_net
+  # if(!(g_test_net %in% c("both", "temporal", "contemporaneous"))){
+  #   stop("network to test should be either 'both', 'temporal', or 'contemporaneous'")
+  # }
+  #
+  # if(partial_prune &
+  #    !(prune_net %in% c("both", "temporal", "contemporaneous"))){
+  #   stop("prune_net should be either 'both', 'temporal', or 'contemporaneous'")
+  # }
 
-  if(partial_prune &
-     !(prune_net %in% c("both", "temporal", "contemporaneous"))){
-    stop("prune_net should be either 'both', 'temporal', or 'contemporaneous'")
-  }
-
-  if(partial_prune &
-     prune_net != test){
+  if(partial_prune & global &
+     prune_net != g_test_net){
     stop("The network you are partial pruning is different than the network you are testing equality on")
   }
 
@@ -611,9 +667,9 @@ IVPP_tsgvar <- function(data,
     stop("specify the type of networks to be compared to net_type")
   }
 
-  if(!(net_type %in% c("saturated", "sparse"))){
-    stop("network_type is either 'saturated or 'sparse'")
-  }
+  # if(!(net_type %in% c("saturated", "sparse"))){
+  #   stop("network_type is either 'saturated or 'sparse'")
+  # }
 
   # estimator
   if (estimator != "FIML"){
@@ -632,177 +688,177 @@ IVPP_tsgvar <- function(data,
                         estimator = estimator,
                         ...) %>% runmodel %>% suppressWarnings
 
-  # omnibus test for saturated & sparse networks
-  if(net_type == "saturated"){
+  if (global) {
+    # omnibus test for saturated & sparse networks
+    if(net_type == "saturated"){
 
-    # estimate the fully-constrained model
-    mod_saturated_bothEq <- mod_saturated %>%
-      groupequal(matrix = "beta") %>%
-      groupequal(matrix = "omega_zeta") %>% runmodel %>% suppressWarnings
-
-    # model comparisons
-    if(test == "both"){
-
-      # compare with the free model
-      comp_vs_free <- comp_vs_bothEq <- psychonetrics::compare(free = mod_saturated,
-                                                               bothEq = mod_saturated_bothEq)
-
-      # end: if(test == "both")
-    } else if (test == "temporal"){
-
-      # estimate the model that constrains temporal networks to be equal
-      mod_saturated_tempEq <- mod_saturated %>%
-        groupequal(matrix = "beta") %>% runmodel %>% suppressWarnings
-
-      # estimate the model that constrains contemporaneous networks to be equal
-      mod_saturated_contEq <- mod_saturated %>%
+      # estimate the fully-constrained model
+      mod_saturated_bothEq <- mod_saturated %>%
+        groupequal(matrix = "beta") %>%
         groupequal(matrix = "omega_zeta") %>% runmodel %>% suppressWarnings
 
-      # compare with the free model
-      comp_vs_free <- psychonetrics::compare(free = mod_saturated,
-                                             tempEq = mod_saturated_tempEq)
+      # multi-group model estimation
+      if (g_test_net == "temporal" | g_test_net == "contemporaneous") {
 
-      # compare with the full-constrained model
-      comp_vs_bothEq <- psychonetrics::compare(contEq = mod_saturated_contEq,
-                                               bothEq = mod_saturated_bothEq)
+        mods <- parallel::mclapply(c("beta", "omega_zeta"), mc.cores = ncores, function(net) {
+          mod_saturated %>% groupequal(matrix = net) %>% runmodel %>% suppressWarnings
+        })
 
-      # end: if(test == "temporal")
-    } else if (test == "contemporaneous"){
+        mod_saturated_tempEq <- mods[[1]]
+        mod_saturated_contEq <- mods[[2]]
 
-      # estimate the model that constrains temporal networks to be equal
-      mod_saturated_tempEq <- mod_saturated %>%
-        groupequal(matrix = "beta") %>% runmodel %>% suppressWarnings
+      }
 
-      # estimate the model that constrains contemporaneous networks to be equal
-      mod_saturated_contEq <- mod_saturated %>%
+      # model comparisons
+      if(g_test_net == "both"){
+
+        # compare with the free model
+        comp_vs_free <- comp_vs_bothEq <- psychonetrics::compare(free = mod_saturated,
+                                                                 bothEq = mod_saturated_bothEq)
+
+        # end: if(g_test_net == "both")
+      } else if (g_test_net == "temporal") {
+        # compare with the free model
+        comp_vs_free <- psychonetrics::compare(free = mod_saturated,
+                                               tempEq = mod_saturated_tempEq)
+
+        # compare with the full-constrained model
+        comp_vs_bothEq <- psychonetrics::compare(contEq = mod_saturated_contEq,
+                                                 bothEq = mod_saturated_bothEq)
+
+      } else if (g_test_net == "contemporaneous"){
+
+        # compare with the free model
+        comp_vs_free <- psychonetrics::compare(free = mod_saturated,
+                                               contEq = mod_saturated_contEq)
+
+        # compare with the full-constrained model
+        comp_vs_bothEq <- psychonetrics::compare(tempEq = mod_saturated_tempEq,
+                                                 bothEq = mod_saturated_bothEq)
+
+        # end: if(g_test_net == "contemporaneous")
+      }
+
+
+      # end: if(net_type == "saturated")
+    } else { # if (net_type == "pruned")
+
+      # The free union model
+      mod_union <- mod_saturated %>% prune(alpha = prune_alpha) %>% unionmodel %>% runmodel %>% suppressWarnings
+
+      # the fully-constrained union model
+      mod_union_bothEq <- mod_union %>%
+        groupequal(matrix = "beta") %>%
         groupequal(matrix = "omega_zeta") %>% runmodel %>% suppressWarnings
 
-      # compare with the free model
-      comp_vs_free <- psychonetrics::compare(free = mod_saturated,
-                                             contEq = mod_saturated_contEq)
+      # estimate the multi-group model
+      if (g_test_net == "temporal"|g_test_net == "contemporaneous"){
 
-      # compare with the full-constrained model
-      comp_vs_bothEq <- psychonetrics::compare(tempEq = mod_saturated_tempEq,
-                                               bothEq = mod_saturated_bothEq)
+        mods <- parallel::mclapply(c("beta", "omega_zeta"), mc.cores = ncores, function(net) {
+          mod_union_tempEq <- mod_union %>%
+            groupequal(matrix = net) %>% runmodel %>% suppressWarnings
+        })
 
-      # end: if(test == "contemporaneous")
-    }
+        mod_union_tempEq <- mods[[1]]
+        mod_union_contEq <- mods[[2]]
 
+      }
 
-    # end: if(net_type == "saturated")
-  } else { # if (net_type == "pruned")
+      # model comparison
+      if(g_test_net == "both"){
 
-    # The free union model
-    mod_union <- mod_saturated %>% prune(alpha = prune_alpha) %>% unionmodel %>% runmodel %>% suppressWarnings
+        # compare with the free model
+        comp_vs_free <- comp_vs_bothEq <- psychonetrics::compare(free = mod_union,
+                                                                 bothEq = mod_union_bothEq)
 
-    # the fully-constrained union model
-    mod_union_bothEq <- mod_union %>%
-      groupequal(matrix = "beta") %>%
-      groupequal(matrix = "omega_zeta") %>% runmodel %>% suppressWarnings
+        # end: if(g_test_net == "both")
+      } else if (g_test_net == "temporal") {
 
-    # model comparisons
-    if(test == "both"){
+        # compare with the free model
+        comp_vs_free <- psychonetrics::compare(free = mod_union,
+                                               tempEq = mod_union_tempEq)
 
-      # compare with the free model
-      comp_vs_free <- comp_vs_bothEq <- psychonetrics::compare(free = mod_union,
-                                                               bothEq = mod_union_bothEq)
+        # compare with the full-constrained model
+        comp_vs_bothEq <- psychonetrics::compare(contEq = mod_union_contEq,
+                                                 bothEq = mod_union_bothEq)
 
-      # end: if(test == "both")
-    } else if (test == "temporal"){
+      } else if (g_test_net == "contemporaneous"){
 
-      # estimate the model that constrains temporal networks to be equal
-      mod_union_tempEq <- mod_union %>%
-        groupequal(matrix = "beta") %>% runmodel %>% suppressWarnings
+        # compare with the free model
+        comp_vs_free <- psychonetrics::compare(free = mod_union,
+                                               contEq = mod_union_contEq)
 
-      # estimate the model that constrains contemporaneous networks to be equal
-      mod_union_contEq <- mod_union %>%
-        groupequal(matrix = "omega_zeta") %>% runmodel %>% suppressWarnings
+        # compare with the full-constrained model
+        comp_vs_bothEq <- psychonetrics::compare(tempEq = mod_union_tempEq,
+                                                 bothEq = mod_union_bothEq)
 
-      # compare with the free model
-      comp_vs_free <- psychonetrics::compare(free = mod_union,
-                                             tempEq = mod_union_tempEq)
-
-      # compare with the full-constrained model
-      comp_vs_bothEq <- psychonetrics::compare(contEq = mod_union_contEq,
-                                               bothEq = mod_union_bothEq)
-
-      # end: if(test == "temporal")
-    } else if (test == "contemporaneous"){
-
-      # estimate the model that constrains temporal networks to be equal
-      mod_union_tempEq <- mod_union %>%
-        groupequal(matrix = "beta") %>% runmodel %>% suppressWarnings
-
-      # estimate the model that constrains contemporaneous networks to be equal
-      mod_union_contEq <- mod_union %>%
-        groupequal(matrix = "omega_zeta") %>% runmodel %>% suppressWarnings
-
-      # compare with the free model
-      comp_vs_free <- psychonetrics::compare(free = mod_union,
-                                             contEq = mod_union_contEq)
-
-      # compare with the full-constrained model
-      comp_vs_bothEq <- psychonetrics::compare(tempEq = mod_union_tempEq,
-                                               bothEq = mod_union_bothEq)
-
-      # end: if(test == "contemporaneous")
-    }  # end: if(test == xxx)
+        # end: if(g_test_net == "contemporaneous")
+      }  # end: if(g_test_net == xxx)
 
 
-  } # end: else (net_type == "pruned")
+    } # end: else (net_type == "pruned")
 
-  # generate the comparison table
-  tab_vs_free <- data.frame(
-    AIC = comp_vs_free$AIC,
-    delta_AIC = c(NA, diff(comp_vs_free$AIC)),
-    BIC = comp_vs_free$BIC,
-    delta_BIC = c(NA, diff(comp_vs_free$BIC)),
-    row.names = comp_vs_free$model
-    # chi_sq = comp_vs_free$Chisq,
-    # delta_chisq = comp_vs_free$Chisq_diff,
-    # p_value = comp_vs_free$p_value
-  )
 
-  tab_vs_bothEq <- data.frame(
-    AIC = comp_vs_bothEq$AIC,
-    delta_AIC = c(NA, diff(comp_vs_bothEq$AIC)),
-    BIC = comp_vs_bothEq$BIC,
-    delta_BIC = c(NA, diff(comp_vs_bothEq$BIC)),
-    row.names = comp_vs_bothEq$model
-    # chi_sq = comp_vs_bothEq$Chisq,
-    # delta_chisq = comp_vs_bothEq$Chisq_diff,
-    # p_value = comp_vs_bothEq$p_value
-  )
+    # generate the comparison table
+    tab_vs_free <- data.frame(
+      AIC = comp_vs_free$AIC,
+      delta_AIC = c(NA, diff(comp_vs_free$AIC)),
+      BIC = comp_vs_free$BIC,
+      delta_BIC = c(NA, diff(comp_vs_free$BIC)),
+      row.names = comp_vs_free$model
+      # chi_sq = comp_vs_free$Chisq,
+      # delta_chisq = comp_vs_free$Chisq_diff,
+      # p_value = comp_vs_free$p_value
+    )
 
-  # return the comparison results
-  tab <- list(
-    vs_free = tab_vs_free,
-    vs_bothEq = tab_vs_bothEq
-  )
-  #
-  #   class(tab_vs_free) <- class(tab_vs_bothEq) <- c("panel_omni", "data.frame")
+    tab_vs_bothEq <- data.frame(
+      AIC = comp_vs_bothEq$AIC,
+      delta_AIC = c(NA, diff(comp_vs_bothEq$AIC)),
+      BIC = comp_vs_bothEq$BIC,
+      delta_BIC = c(NA, diff(comp_vs_bothEq$BIC)),
+      row.names = comp_vs_bothEq$model
+      # chi_sq = comp_vs_bothEq$Chisq,
+      # delta_chisq = comp_vs_bothEq$Chisq_diff,
+      # p_value = comp_vs_bothEq$p_value
+    )
+
+    # return the comparison results
+    tab <- list(
+      vs_free = tab_vs_free,
+      vs_bothEq = tab_vs_bothEq
+    )
+    #
+    #   class(tab_vs_free) <- class(tab_vs_bothEq) <- c("panel_omni", "data.frame")
+  } # end: if (global)
+
 
   # ----- partial pruning -----
 
   if (partial_prune) {
 
     # model comparisons
-    if(prune_net == "both"){
+    if(prune_net == "both") {
 
       mod_pp <- mod_saturated %>%
         partialprune(matrices = c("beta", "omega_zeta"),
                      alpha = p_prune_alpha, return = "partialprune") %>%
         runmodel %>% suppressWarnings
 
-      # end: if(test == "both")
-    } else if (prune_net == "temporal"){
+      # end: if(g_test_net == "both")
+    } else if (prune_net == "temporal") {
 
       mod_pp <- mod_saturated %>%
-        groupequal(matrix = "omega_zeta")%>%
+        groupequal(matrix = "omega_zeta") %>%
         partialprune(matrices = "beta",
                      alpha = p_prune_alpha,
                      return = "partialprune") %>%
         runmodel %>% suppressWarnings
+
+      # prune the other network if sparse networks are requested
+      if(net_type == "sparse") {
+        mod_pp <- mod_pp %>% prune(matrices = "omega_zeta") %>% runmodel %>% suppressWarnings
+      }
+
 
       # # for the convenience of interpretation, correct the contemp of groups other than g1
       # for(g in 2:length(mat$contemporaneous)){
@@ -811,14 +867,20 @@ IVPP_tsgvar <- function(data,
 
 
 
-      # end: if(test == "temporal")
+      # end: if(g_test_net == "temporal")
     } else if (prune_net == "contemporaneous"){
 
-      mod_pp <- mod_saturated_tempEq %>%
+      mod_pp <- mod_saturated %>%
+        groupequal(matrix = "beta") %>%
         partialprune(matrices = "omega_zeta",
                      alpha = p_prune_alpha,
                      return = "partialprune") %>%
         runmodel %>% suppressWarnings
+
+      # prune the other network if sparse networks are requested
+      if(net_type == "sparse") {
+        mod_pp <- mod_pp %>% prune(matrices = "beta") %>% runmodel %>% suppressWarnings
+      }
 
       # # for the convenience of interpretation, correct the temp and beta of groups other than g1
       # for(g in 2:length(mat$temporal)){
@@ -826,12 +888,12 @@ IVPP_tsgvar <- function(data,
       #   mat$beta[[g]] <- mat$beta[[1]]
       # }
 
-    } # end: if(test == xxx)
+    } # end: if(g_test_net == xxx)
 
     # save networks
-    save_matrix = c("PDC", "beta", "omega_zeta")
+    save_matrix <- c("PDC", "beta", "omega_zeta")
 
-    mat <- lapply(save_matrix, function(m){
+    mat <- parallel::mclapply(save_matrix, mc.cores = ncores, function(m){
       m <- getmatrix(mod_pp, m)
       return(m)
     }) %>% setNames(save_matrix)
@@ -846,10 +908,16 @@ IVPP_tsgvar <- function(data,
     mat <- c("Specified partial_prune = FALSE. No partial pruning results.")
   }# end if (partial_prune)
 
-  return(list(
-    omnibus = tab,
-    partial_prune = mat
-  ))
+  if (global) {
+    return(list(
+      omnibus = tab,
+      partial_prune = mat
+    ))
+  } else {
+    return(list(
+      partial_prune = mat
+    ))
+  }
 
 } # end: IVPP_tsgvar
 

@@ -4,7 +4,8 @@
 #'
 #' @param n_node an integer denoting the number of nodes
 #' @param n_group an integer denoting the number of groups
-#' @param p_rewire a numeric value between 0-1 denoting the extent of group difference
+#' @param p_rewire_temp a numeric value between 0-1 denoting the extent of group difference in the temporal network
+#' @param p_rewire_cont a numeric value between 0-1 denoting the extent of group difference in the contemporaneous network
 #'
 #' @return A list of beta, PDC, kappa and contemporaneous networks
 #'
@@ -27,13 +28,14 @@
 
 
 gen_panelGVAR <- function(n_node = 6,
-                          p_rewire = 0.5,
+                          p_rewire_temp = 0.5,
+                          p_rewire_cont = 0.5,
                           n_group = 1){
 
 
   # check inputs ------------------------------------------------------------
 
-  if(p_rewire < 0 | p_rewire > 1){
+  if(p_rewire_temp < 0 | p_rewire_temp > 1 | p_rewire_cont < 0 | p_rewire_cont > 1){
     stop("probability of rewiring should be between 0 and 1")
   }
 
@@ -61,9 +63,9 @@ gen_panelGVAR <- function(n_node = 6,
     # Start with second network
     for (g in 2:n_group) {
       # temp_base for g2 onwards
-      temp_base_ls[[paste0("g",g)]] <- rewire(temp_base_ls[[g-1]], p = p_rewire, directed = TRUE)
+      temp_base_ls[[paste0("g",g)]] <- rewire(temp_base_ls[[g-1]], p = p_rewire_temp, directed = TRUE)
       # cont_base for g2 onwards
-      cont_base_ls[[paste0("g",g)]] <- rewire(cont_base_ls[[g-1]], p = p_rewire, directed = FALSE)
+      cont_base_ls[[paste0("g",g)]] <- rewire(cont_base_ls[[g-1]], p = p_rewire_cont, directed = FALSE)
     }
 
   } # end: if(n_group > 1)
@@ -116,8 +118,8 @@ gen_panelGVAR <- function(n_node = 6,
 #'
 #' @param n_node an integer denoting the number of nodes
 #' @param n_persons an integer denoting the number of individuals to generate tsGVAR for
-#' @param p_rewire a numeric value between 0-1 denoting the extent of individual difference
-#'
+#' @param p_rewire_temp a numeric value between 0-1 denoting the extent of individual difference in the temporal network
+#' @param p_rewire_cont a numeric value between 0-1 denoting the extent of individual difference in the contemporaneous network
 #' @return A list of beta, PDC, kappa and contemporaneous networks
 #'
 #' @details
@@ -139,13 +141,14 @@ gen_panelGVAR <- function(n_node = 6,
 
 
 gen_tsGVAR <- function(n_node = 6,
-                       p_rewire = 0.5,
+                       p_rewire_temp = 0.5,
+                       p_rewire_cont = 0.5,
                        n_persons = 1){
 
 
   # check inputs ------------------------------------------------------------
 
-  if(p_rewire < 0 | p_rewire > 1){
+  if(p_rewire_temp < 0 | p_rewire_temp > 1 | p_rewire_cont < 0 | p_rewire_cont > 1){
     stop("probability of rewiring should be between 0 and 1")
   }
 
@@ -157,12 +160,12 @@ gen_tsGVAR <- function(n_node = 6,
   # generate networks -------------------------------------------------------
 
   # the temporal network for g1
-  temp_base_ls[["g1"]] <- diag(0.5, n_node)
-  temp_base_ls[["g1"]][cbind(1:n_node, ((1:n_node) + 1) %% n_node + 1)] <-
+  temp_base_ls[["p1"]] <- diag(0.5, n_node)
+  temp_base_ls[["p1"]][cbind(1:n_node, ((1:n_node) + 1) %% n_node + 1)] <-
     sample(c(0.25, -0.25), n_node, replace = TRUE, prob = c(0.8, 0.2))
 
   # the contemporaneous network for g1
-  cont_base_ls[["g1"]] <- bootnet::genGGM(n_node, propPositive = 0.8)
+  cont_base_ls[["p1"]] <- bootnet::genGGM(n_node, propPositive = 0.8)
 
 
 
@@ -173,9 +176,9 @@ gen_tsGVAR <- function(n_node = 6,
     # Start with second network
     for (g in 2:n_persons) {
       # temp_base for g2 onwards
-      temp_base_ls[[paste0("g",g)]] <- rewire(temp_base_ls[[g-1]], p = p_rewire, directed = TRUE)
+      temp_base_ls[[paste0("p",g)]] <- rewire(temp_base_ls[[g-1]], p = p_rewire_temp, directed = TRUE)
       # cont_base for g2 onwards
-      cont_base_ls[[paste0("g",g)]] <- rewire(cont_base_ls[[g-1]], p = p_rewire, directed = FALSE)
+      cont_base_ls[[paste0("p",g)]] <- rewire(cont_base_ls[[g-1]], p = p_rewire_cont, directed = FALSE)
     }
 
   } # end: if(n_persons > 1)
@@ -207,7 +210,7 @@ gen_tsGVAR <- function(n_node = 6,
 
     return(PDC)
 
-  }) %>% setNames(paste0("g", seq_len(n_persons))) # set names g1-3
+  }) %>% setNames(paste0("p", seq_len(n_persons))) # set names g1-3
 
   nets <- list(
     beta = beta_base_ls,

@@ -33,9 +33,11 @@ An example that uses IVPP to compare panelGVAR models:
 
 ``` r
 library(IVPP)
+
 # Generate the network
 net_ls <- gen_panelGVAR(n_node = 6,
-                        p_rewire = 0.5,
+                        p_rewire_temp = 0.5,
+                        p_rewire_cont = 0,
                         n_group = 3)
 
 # Generate the data
@@ -46,18 +48,66 @@ data <- sim_panelGVAR(temp_base_ls = net_ls$temporal,
                       n_group = 3,
                       n_node = 6)
 
-# IVPP test on the temporal network
-ivpp <- IVPP_panelgvar(data,
-                       vars = paste0("V",1:6),
-                       idvar = "subject",
-                       beepvar = "time",
-                       groups = "group",
-                       test = "temporal",
-                       net_type = "saturated",
-                       prune_net = "temporal",
-                       partial_prune = TRUE,
-                       estimator = "FIML",
-                       standardize = "z")
+library(IVPP)
+# Generate the network
+net_ls <- gen_panelGVAR(n_node = 6,
+                        p_rewire_temp = 0.5,
+                        p_rewire_cont = 0,
+                        n_group = 2)
+
+# Generate the data
+data <- sim_panelGVAR(temp_base_ls = net_ls$temporal,
+                      cont_base_ls = net_ls$omega_zeta_within,
+                      n_person = 200,
+                      n_time = 3,
+                      n_group = 2,
+                      n_node = 6)
+
+# global test on both nets
+omnibus_both <- IVPP_panelgvar(data, 
+                               vars = paste0("V",1:6),
+                               idvar = "subject", 
+                               beepvar = "time", 
+                               groups = "group",
+                               g_test_net = "both",
+                               net_type = "sparse",
+                               partial_prune = FALSE,
+                               ncores = parallel::detectCores())
+
+# global test on temporal
+omnibus_temp <- IVPP_panelgvar(data, 
+                               vars = paste0("V",1:6),
+                               idvar = "subject", 
+                               beepvar = "time", 
+                               groups = "group",
+                               g_test_net = "temporal",
+                               net_type = "sparse",
+                               partial_prune = FALSE,
+                               ncores = parallel::detectCores())
+
+# global test on cont
+omnibus_cont <- IVPP_panelgvar(data, 
+                               vars = paste0("V",1:6),
+                               idvar = "subject", 
+                               beepvar = "time", 
+                               groups = "group",
+                               g_test_net = "contemporaneous",
+                               net_type = "sparse",
+                               partial_prune = FALSE,
+                               ncores = parallel::detectCores())
+
+# partial prune on both networks
+pp_both <- IVPP_panelgvar(data, 
+                          vars = paste0("V",1:6),
+                          idvar = "subject", 
+                          beepvar = "time", 
+                          groups = "group",
+                          global = FALSE,
+                          net_type = "sparse",
+                          partial_prune = TRUE,
+                          prune_net = "cont",
+                          ncores = parallel::detectCores()) 
+
 
 ```
 
@@ -80,11 +130,52 @@ data <- sim_tsGVAR(beta_base_ls = net_ls$beta,
 # IVPP test on
 ivpp_ts <- IVPP_tsgvar(data = data,
                        vars = paste0("V",1:6),
-                       idvar = "id",
-                       test = "temporal",
+                       idvar = "subject",
+                       g_test_net = "temporal",
                        net_type = "saturated",
                        prune_net = "temporal",
                        partial_prune = TRUE,
                        estimator = "FIML",
                        standardize = "z")
+                       
+# global test on both nets
+omnibus_both <- IVPP_tsgvar(data, 
+                               vars = paste0("V",1:6),
+                               idvar = "subject", 
+                               beepvar = "time", 
+                               groups = "id",
+                               g_test_net = "both",
+                               net_type = "sparse",
+                               partial_prune = FALSE)
+
+# global test on temporal
+omnibus_temp <- IVPP_tsgvar(data, 
+                               vars = paste0("V",1:6),
+                               idvar = "subject", 
+                               beepvar = "time", 
+                               groups = "group",
+                               g_test_net = "temporal",
+                               net_type = "sparse",
+                               partial_prune = FALSE)
+
+# global test on cont
+omnibus_cont <- IVPP_tsgvar(data, 
+                               vars = paste0("V",1:6),
+                               idvar = "subject", 
+                               beepvar = "time", 
+                               groups = "group",
+                               g_test_net = "contemporaneous",
+                               net_type = "sparse",
+                               partial_prune = FALSE)
+
+# pp on temporal
+pp_both <- IVPP_tsgvar(data, 
+                               vars = paste0("V",1:6),
+                               idvar = "subject", 
+                               beepvar = "time", 
+                               groups = "group",
+                               g_test_net = "both",
+                               net_type = "sparse",
+                               partial_prune = TRUE,
+                               prune_net = "both")                       
 ```
