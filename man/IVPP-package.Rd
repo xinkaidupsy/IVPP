@@ -6,7 +6,7 @@
 \alias{IVPP-package}
 \title{IVPP: Invariance Partial Pruning Test}
 \description{
-An implementation of the Invariance Partial Pruning (IVPP) approach described in Du, X., Johnson, S. U., Epskamp, S. (in prep) to comparing idiographic and panel network models. IVPP is a two-step method that first test for global network structural difference with invariance test and then inspect specific edge difference with partial pruning.
+An implementation of the Invariance Partial Pruning (IVPP) approach described in Du, X., Johnson, S. U., Epskamp, S. (2025) The Invariance Partial Pruning Approach to The Network Comparison in Longitudinal Data. IVPP is a two-step method that first test for global network structural difference with invariance test and then inspect specific edge difference with partial pruning.
 }
 \seealso{
 Useful links:

@@ -85,7 +85,7 @@ library(IVPP)
 # Generate the network
 net_ls <- gen_panelGVAR(n_node = 6,
                         p_rewire_temp = 0.5,
-                        p_rewire_cont = 0,
+                        p_rewire_cont = 0.5,
                         n_group = 2)
 
 # Generate the data
@@ -138,7 +138,7 @@ pp_both <- IVPP_panelgvar(data,
                           global = FALSE,
                           net_type = "sparse",
                           partial_prune = TRUE,
-                          prune_net = "cont",
+                          prune_net = "both",
                           ncores = 2)
 }
 }

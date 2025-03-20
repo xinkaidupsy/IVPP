@@ -85,28 +85,6 @@ library(IVPP)
 # Generate the network
 net_ls <- gen_tsGVAR(n_node = 6,
                      p_rewire_temp = 0.5,
-                     p_rewire_cont = 0,
-                     n_persons = 2)
-
-# Generate the data
-data <- sim_tsGVAR(beta_base_ls = net_ls$beta,
-                   kappa_base_ls = net_ls$kappa,
-                   # n_person = 2,
-                   n_time = 50)
-
-# IVPP test on temporal network
-ivpp_ts <- IVPP_tsgvar(data = data,
-                       vars = paste0("V",1:6),
-                       idvar = "id",
-                       g_test_net = "temporal",
-                       net_type = "saturated",
-                       prune_net = "temporal",
-                       partial_prune = TRUE,
-                       estimator = "FIML",
-                       standardize = "z")
-# Generate the network
-net_ls <- gen_tsGVAR(n_node = 6,
-                     p_rewire_temp = 0,
                      p_rewire_cont = 0.5,
                      n_persons = 2)
 
@@ -141,7 +119,7 @@ pp_both <- IVPP_tsgvar(data,
                        global = FALSE,
                        net_type = "sparse",
                        partial_prune = TRUE,
-                       prune_net = "temp",
+                       prune_net = "both",
                        ncores = 2)
 }
 }
