@@ -14,7 +14,7 @@ Description: An implementation of the Invariance Partial Pruning (IVPP) approach
   Pruning Approach to The Network Comparison in Longitudinal Data. IVPP is a 
   two-step method that first test for global network structural difference with 
   invariance test and then inspect specific edge difference with partial pruning. 
-License: GPL (>= 3)
+License: GPL (>= 3) + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 4.3.0)
 Imports:
