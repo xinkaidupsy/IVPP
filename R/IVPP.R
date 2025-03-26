@@ -209,6 +209,12 @@ IVPP_panelgvar <- function(data,
     stop("Only 'FIML' supported currently.")
   }
 
+  # Set up parallel execution plan
+  if (ncores > 1) {
+    future::plan(future::multisession, workers = ncores)
+    on.exit(future::plan(future::sequential), add = TRUE)
+  }
+
   # ----- omnibus test -----
   # browser()
 
@@ -257,9 +263,6 @@ IVPP_panelgvar <- function(data,
 
       # multi-group model estimation
       if (g_test_net == "temporal" | g_test_net == "contemporaneous") {
-
-        # Set up parallel execution plan
-        future::plan(future::multisession, workers = ncores)
 
         # estimate partially constrained models
         mods <- future.apply::future_lapply(c("beta", "omega_zeta_within"), function(net) {
@@ -318,9 +321,6 @@ IVPP_panelgvar <- function(data,
 
       # estimate the multi-group model
       if (g_test_net == "temporal"|g_test_net == "contemporaneous"){
-
-        # Set up parallel execution plan
-        future::plan(future::multisession, workers = ncores)
 
         mods <- future.apply::future_lapply(c("beta", "omega_zeta_within"), function(net) {
           mod_union %>%
@@ -522,7 +522,6 @@ IVPP_panelgvar <- function(data,
   }
 
 
-
 } # end: IVPP_panel
 
 
@@ -710,6 +709,12 @@ IVPP_tsgvar <- function(data,
     stop("Only 'FIML' supported currently.")
   }
 
+  # Set up parallel execution plan
+  if (ncores > 1) {
+    future::plan(future::multisession, workers = ncores)
+    on.exit(future::plan(future::sequential), add = TRUE)
+  }
+
   # ----- omnibus test -----
 
   # estimate the saturated free model
@@ -733,9 +738,6 @@ IVPP_tsgvar <- function(data,
 
       # multi-group model estimation
       if (g_test_net == "temporal" | g_test_net == "contemporaneous") {
-
-        # Set up parallel execution plan
-        future::plan(future::multisession, workers = ncores)
 
         # estimate partially constrained models
         mods <- future.apply::future_lapply(c("beta", "omega_zeta"), function(net) {
@@ -794,9 +796,6 @@ IVPP_tsgvar <- function(data,
 
       # estimate the multi-group model
       if (g_test_net == "temporal"|g_test_net == "contemporaneous"){
-
-        # Set up parallel execution plan
-        future::plan(future::multisession, workers = ncores)
 
         # estimate partially constrained models
         mods <- future.apply::future_lapply(c("beta", "omega_zeta"), function(net) {
