@@ -212,7 +212,10 @@ IVPP_panelgvar <- function(data,
   # Set up parallel execution plan
   if (ncores > 1) {
     future::plan(future::multisession, workers = ncores)
+    par_fun <- future.apply::future_lapply
     on.exit(future::plan(future::sequential), add = TRUE)
+  } else {
+    par_fun <- lapply
   }
 
   # ----- omnibus test -----
@@ -265,7 +268,7 @@ IVPP_panelgvar <- function(data,
       if (g_test_net == "temporal" | g_test_net == "contemporaneous") {
 
         # estimate partially constrained models
-        mods <- future.apply::future_lapply(c("beta", "omega_zeta_within"), function(net) {
+        mods <- par_fun(c("beta", "omega_zeta_within"), function(net) {
           mod_saturated %>%
             groupequal(matrix = net) %>%
             runmodel %>%
@@ -322,7 +325,7 @@ IVPP_panelgvar <- function(data,
       # estimate the multi-group model
       if (g_test_net == "temporal"|g_test_net == "contemporaneous"){
 
-        mods <- future.apply::future_lapply(c("beta", "omega_zeta_within"), function(net) {
+        mods <- par_fun(c("beta", "omega_zeta_within"), function(net) {
           mod_union %>%
             groupequal(matrix = net) %>%
             runmodel %>%
@@ -494,7 +497,7 @@ IVPP_panelgvar <- function(data,
     # save networks
     save_matrix <- c("PDC", "beta", "omega_zeta_within")
 
-    mat <- lapply(save_matrix, function(m){
+    mat <- par_fun(save_matrix, function(m){
       m <- getmatrix(mod_pp, m)
       return(m)
     }) %>% setNames(save_matrix)
@@ -712,7 +715,10 @@ IVPP_tsgvar <- function(data,
   # Set up parallel execution plan
   if (ncores > 1) {
     future::plan(future::multisession, workers = ncores)
+    par_fun <- future.apply::future_lapply
     on.exit(future::plan(future::sequential), add = TRUE)
+  } else {
+    par_fun <- lapply
   }
 
   # ----- omnibus test -----
@@ -740,7 +746,7 @@ IVPP_tsgvar <- function(data,
       if (g_test_net == "temporal" | g_test_net == "contemporaneous") {
 
         # estimate partially constrained models
-        mods <- future.apply::future_lapply(c("beta", "omega_zeta"), function(net) {
+        mods <- par_fun(c("beta", "omega_zeta"), function(net) {
           mod_saturated %>%
             groupequal(matrix = net) %>%
             runmodel %>%
@@ -798,7 +804,7 @@ IVPP_tsgvar <- function(data,
       if (g_test_net == "temporal"|g_test_net == "contemporaneous"){
 
         # estimate partially constrained models
-        mods <- future.apply::future_lapply(c("beta", "omega_zeta"), function(net) {
+        mods <- par_fun(c("beta", "omega_zeta"), function(net) {
           mod_union %>%
             groupequal(matrix = net) %>%
             runmodel %>%
@@ -939,7 +945,7 @@ IVPP_tsgvar <- function(data,
     # save networks
     save_matrix <- c("PDC", "beta", "omega_zeta")
 
-    mat <- lapply(save_matrix, function(m){
+    mat <- par_fun(save_matrix, function(m){
       m <- getmatrix(mod_pp, m)
       return(m)
     }) %>% setNames(save_matrix)
