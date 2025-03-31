@@ -63,3 +63,7 @@ data <- sim_panelGVAR(temp_base_ls = net_ls$temporal,
                       n_group = 3,
                       n_node = 6)
 }
+\author{
+Xinkai Du
+Maintainer: Xinkai Du \href{mailto:xinkai.du.xd@gmail.com}{xinkai.du.xd@gmail.com}
+}

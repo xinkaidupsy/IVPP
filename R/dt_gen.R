@@ -14,6 +14,9 @@
 #' @param p_rewire_cont a numeric value between 0 and 1 indicating the extent of non-stationarity in contemporaneous networks, default to 0
 #' @param save_nets a logical value indicating whether to save the data-generating networks, default to FALSE
 #'
+#' @author Xinkai Du
+#' Maintainer: Xinkai Du <xinkai.du.xd@gmail.com>
+#'
 #' @return A list of temporal and contemporaneous networks
 #' @import mvtnorm dplyr
 #' @importFrom stats cov2cor setNames
@@ -302,6 +305,9 @@ sim_panelGVAR <- function(temp_base_ls,
 #' @param n_time number of measurements per person, default to 50
 #' @param n_person number of individuals to generate data for
 #' @param save_nets a logical value indicating whether to save the data-generating networks, default to FALSE
+#'
+#' @author Xinkai Du
+#' Maintainer: Xinkai Du <xinkai.du.xd@gmail.com>
 #'
 #' @return A list of temporal and contemporaneous networks
 #' @import mvtnorm dplyr

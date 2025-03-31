@@ -7,6 +7,9 @@
 #' @param p_rewire_temp a numeric value between 0-1 denoting the extent of group difference in the temporal network
 #' @param p_rewire_cont a numeric value between 0-1 denoting the extent of group difference in the contemporaneous network
 #'
+#' @author Xinkai Du
+#' Maintainer: Xinkai Du <xinkai.du.xd@gmail.com>
+#'
 #' @return A list of beta, PDC, kappa and contemporaneous networks
 #'
 #' @details
@@ -121,6 +124,10 @@ gen_panelGVAR <- function(n_node = 6,
 #' @param n_persons an integer denoting the number of individuals to generate tsGVAR for
 #' @param p_rewire_temp a numeric value between 0-1 denoting the extent of individual difference in the temporal network
 #' @param p_rewire_cont a numeric value between 0-1 denoting the extent of individual difference in the contemporaneous network
+#'
+#' @author Xinkai Du
+#' Maintainer: Xinkai Du <xinkai.du.xd@gmail.com>
+#'
 #' @return A list of beta, PDC, kappa and contemporaneous networks
 #'
 #' @details

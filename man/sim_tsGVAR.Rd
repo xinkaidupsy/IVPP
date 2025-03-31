@@ -52,3 +52,7 @@ data <- sim_tsGVAR(beta_base_ls = net_ls$beta,
                    # n_person = 3,
                    n_time = 50)
 }
+\author{
+Xinkai Du
+Maintainer: Xinkai Du \href{mailto:xinkai.du.xd@gmail.com}{xinkai.du.xd@gmail.com}
+}

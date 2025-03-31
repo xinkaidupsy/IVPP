@@ -40,7 +40,10 @@
 #' Similarly, the comparison between the free model and contEq model is a test for group equality in contemporaneous networks,
 #' and the comparison between bothEq and contEq is a test for group equality in temporal networks.
 #'
-#' @return A list containing the results of IVPP and networks of all groups.
+#' @author Xinkai Du
+#' Maintainer: Xinkai Du <xinkai.du.xd@gmail.com>
+#'
+#'  @return A list containing the results of IVPP and networks of all groups.
 #'
 #' @import dplyr
 #' @import psychonetrics
@@ -562,6 +565,10 @@ IVPP_panelgvar <- function(data,
 #' The comparison between fully constrained model (bothEq) and tempEq is a test for group equality in contemporaneous networks.
 #' Similarly, the comparison between the free model and contEq model is a test for group equality in contemporaneous networks,
 #' and the comparison between bothEq and contEq is a test for group equality in temporal networks.
+#'
+#' @author Xinkai Du
+#' Maintainer: Xinkai Du <xinkai.du.xd@gmail.com>
+#'
 #' @return A list containing the results of IVPP and networks of all groups.
 #' @import dplyr psychonetrics
 #' @importFrom stats ave

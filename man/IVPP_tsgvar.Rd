@@ -123,3 +123,7 @@ pp_both <- IVPP_tsgvar(data,
                        ncores = 1)
 }
 }
+\author{
+Xinkai Du
+Maintainer: Xinkai Du \href{mailto:xinkai.du.xd@gmail.com}{xinkai.du.xd@gmail.com}
+}

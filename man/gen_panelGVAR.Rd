@@ -41,3 +41,7 @@ net_ls <- gen_panelGVAR(n_node = 6,
                         p_rewire_cont = 0,
                         n_group = 2)
 }
+\author{
+Xinkai Du
+Maintainer: Xinkai Du \href{mailto:xinkai.du.xd@gmail.com}{xinkai.du.xd@gmail.com}
+}
