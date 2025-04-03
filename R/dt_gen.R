@@ -17,7 +17,7 @@
 #' @author Xinkai Du
 #' Maintainer: Xinkai Du <xinkai.du.xd@gmail.com>
 #'
-#' @return A list of temporal and contemporaneous networks
+#' @returns A list of temporal and contemporaneous networks
 #' @import mvtnorm dplyr
 #' @importFrom stats cov2cor setNames
 #' @export sim_panelGVAR

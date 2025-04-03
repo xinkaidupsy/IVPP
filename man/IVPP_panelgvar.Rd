@@ -64,6 +64,9 @@ and "quantile" for a non-parametric transformation to the quantiles of the margi
 
 \item{...}{Additional arguments to be passed to the \code{\link[psychonetrics]{dlvm1}} function}
 }
+\value{
+A list containing the results of IVPP and networks of all groups.
+}
 \description{
 This function implements the IVPP algorithm to compare networks in the multi-group panelGVAR models.
 The IVPP algorithm is a two-step procedure that first conducts an global invariance test of network difference and then performs partial pruning for the specific edge-level differences.
@@ -142,6 +145,4 @@ pp_both <- IVPP_panelgvar(data,
 \author{
 Xinkai Du
 Maintainer: Xinkai Du \href{mailto:xinkai.du.xd@gmail.com}{xinkai.du.xd@gmail.com}
-
-@return A list containing the results of IVPP and networks of all groups.
 }

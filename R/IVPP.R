@@ -43,7 +43,7 @@
 #' @author Xinkai Du
 #' Maintainer: Xinkai Du <xinkai.du.xd@gmail.com>
 #'
-#'  @return A list containing the results of IVPP and networks of all groups.
+#' @return A list containing the results of IVPP and networks of all groups.
 #'
 #' @import dplyr
 #' @import psychonetrics
