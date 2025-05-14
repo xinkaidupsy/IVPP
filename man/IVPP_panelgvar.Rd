@@ -13,6 +13,7 @@ IVPP_panelgvar(
   global = TRUE,
   g_test_net = c("both", "temporal", "contemporaneous"),
   net_type = c("saturated", "sparse"),
+  output_equal = FALSE,
   partial_prune = FALSE,
   prune_net = c("both", "temporal", "contemporaneous"),
   prune_alpha = 0.01,
@@ -45,6 +46,9 @@ See the Details section for more information.}
 \item{net_type}{A character vector specifying the type of networks to be compared in the global test.
 Specify "saturated" if you want to estimate and compare the saturated networks.
 Specify "sparse" if you want to estimate and compare the pruned networks.}
+
+\item{output_equal}{Whether to output the networks that are constrained equal across groups.
+Default to FALSE. Can set to TRUE if the global tests rejects heterogeneity.}
 
 \item{partial_prune}{A logical value specifying whether to conduct partial pruning test or not.}
 

@@ -23,6 +23,8 @@
 #' @param net_type A character vector specifying the type of networks to be compared in the global test.
 #' Specify "saturated" if you want to estimate and compare the saturated networks.
 #' Specify "sparse" if you want to estimate and compare the pruned networks.
+#' @param output_equal Whether to output the networks that are constrained equal across groups.
+#' Default to FALSE. Can set to TRUE if the global tests rejects heterogeneity.
 #' @param prune_alpha A numeric value specifying the alpha level for the pruning (if net_type = "sparse").
 #' @param partial_prune A logical value specifying whether to conduct partial pruning test or not.
 #' @param prune_net A character vector specifying the network you want to partial prune on. Only works when partial_prune = TRUE.
@@ -122,6 +124,7 @@ IVPP_panelgvar <- function(data,
                        g_test_net = c("both", "temporal", "contemporaneous"),
                        # vsModel = c("bothEq", "free"),
                        net_type = c("saturated", "sparse"),
+                       output_equal = FALSE,
                        partial_prune = FALSE,
                        prune_net = c("both", "temporal", "contemporaneous"),
                        prune_alpha = 0.01,
@@ -137,7 +140,7 @@ IVPP_panelgvar <- function(data,
   g_test_net <- match.arg(g_test_net, c("both", "temporal", "contemporaneous"))
   net_type <- match.arg(net_type, c("sparse", "saturated"))
   standardize <- match.arg(standardize,  c("none", "z","quantile"))
-  # browser()
+
 
   # ----- argument check -----
 
@@ -215,11 +218,14 @@ IVPP_panelgvar <- function(data,
   # Set up parallel execution plan
   if (ncores > 1) {
     future::plan(future::multisession, workers = ncores)
-    par_fun <- future.apply::future_lapply
+    par_fun <- future.apply::future_lapply %>% suppressWarnings
     on.exit(future::plan(future::sequential), add = TRUE)
   } else {
     par_fun <- lapply
   }
+
+  # set up output list
+  out <- list()
 
   # ----- omnibus test -----
   # browser()
@@ -276,7 +282,7 @@ IVPP_panelgvar <- function(data,
             groupequal(matrix = net) %>%
             runmodel %>%
             suppressWarnings
-        })
+        }) %>% suppressWarnings
 
         mod_saturated_tempEq <- mods[[1]]
         mod_saturated_contEq <- mods[[2]]
@@ -333,7 +339,7 @@ IVPP_panelgvar <- function(data,
             groupequal(matrix = net) %>%
             runmodel %>%
             suppressWarnings
-        })
+        }) %>% suppressWarnings
 
         mod_union_tempEq <- mods[[1]]
         mod_union_contEq <- mods[[2]]
@@ -381,29 +387,89 @@ IVPP_panelgvar <- function(data,
       delta_AIC = c(NA, diff(comp_vs_free$AIC)),
       BIC = comp_vs_free$BIC,
       delta_BIC = c(NA, diff(comp_vs_free$BIC)),
-      row.names = comp_vs_free$model
-      # chi_sq = comp_vs_free$Chisq,
-      # delta_chisq = comp_vs_free$Chisq_diff,
-      # p_value = comp_vs_free$p_value
-    )
+      row.names = comp_vs_free$model,
+      chi_sq = comp_vs_free$Chisq,
+      delta_chisq = comp_vs_free$Chisq_diff,
+      df_diff = comp_vs_free$DF_diff,
+      p_value = comp_vs_free$p_value
+    ) %>%
+      mutate(
+        across(-c(p_value, df_diff), sprintf, fmt = "%.2f"),
+        p_value = ifelse((p_value < .001 & !is.na(p_value)),
+                         paste("<.001"), sprintf(p_value, fmt = "%.3f"))
+        ) %>%
+      mutate(
+        across(everything(), function(x)
+          ifelse(is.na(x) | x == "NA", yes = paste(""), no = x))
+      )
+
 
     tab_vs_bothEq <- data.frame(
       AIC = comp_vs_bothEq$AIC,
       delta_AIC = c(NA, diff(comp_vs_bothEq$AIC)),
       BIC = comp_vs_bothEq$BIC,
       delta_BIC = c(NA, diff(comp_vs_bothEq$BIC)),
-      row.names = comp_vs_bothEq$model
-      # chi_sq = comp_vs_bothEq$Chisq,
-      # delta_chisq = comp_vs_bothEq$Chisq_diff,
-      # p_value = comp_vs_bothEq$p_value
-    )
+      row.names = comp_vs_bothEq$model,
+      chi_sq = comp_vs_free$Chisq,
+      delta_chisq = comp_vs_free$Chisq_diff,
+      df_diff = comp_vs_free$DF_diff,
+      p_value = comp_vs_free$p_value
+    ) %>%
+      mutate(
+        across(-c(p_value, df_diff), sprintf, fmt = "%.2f"),
+        p_value = ifelse((p_value < .001 & !is.na(p_value)),
+                         paste("<.001"), sprintf(p_value, fmt = "%.3f"))
+        ) %>%
+      mutate(
+        across(everything(), function(x)
+        ifelse(is.na(x) | x == "NA", yes = paste(""), no = x))
+        )
 
     # return the comparison results
-    tab <- list(
+    out$omnibus <- list(
       vs_free = tab_vs_free,
       vs_bothEq = tab_vs_bothEq
     )
-    #
+
+    if (output_equal){
+
+      if (net_type == "saturated"){
+
+        if (g_test_net == "both") {
+          mod_eq <- mod_saturated_bothEq
+        } else if (g_test_net == "temporal") {
+          mod_eq <- mod_saturated_tempEq
+        } else {
+          mod_eq <- mod_saturated_contEq
+        } # end if(g_test_net)
+
+      } else {
+
+        if (g_test_net == "both") {
+          mod_eq <- mod_union_bothEq
+        } else if (g_test_net == "temporal") {
+          mod_eq <- mod_union_tempEq
+        } else {
+          mod_eq <- mod_union_contEq
+        } # end if(g_test_net)
+
+      } # end if (net_type == saturated)
+
+      # save networks
+      save_matrix <- c("PDC", "beta", "omega_zeta_within")
+
+      mat_eq <- par_fun(save_matrix, function(m){
+        m <- getmatrix(mod_eq, m)
+        return(m)
+      }) %>% setNames(save_matrix)
+
+      # names(mat) <- gsub("PDC", "temporal", names(mat))
+      names(mat_eq) <- gsub("omega_zeta_within", "contemporaneous", names(mat_eq))
+
+      out$mat_eq <- mat_eq
+
+    } # end if(output_equal)
+
     #   class(tab_vs_free) <- class(tab_vs_bothEq) <- c("panel_omni", "data.frame")
   } # end: if (global)
 
@@ -500,33 +566,24 @@ IVPP_panelgvar <- function(data,
     # save networks
     save_matrix <- c("PDC", "beta", "omega_zeta_within")
 
-    mat <- par_fun(save_matrix, function(m){
+    mat_pp <- par_fun(save_matrix, function(m){
       m <- getmatrix(mod_pp, m)
       return(m)
     }) %>% setNames(save_matrix)
 
     # names(mat) <- gsub("PDC", "temporal", names(mat))
-    names(mat) <- gsub("omega_zeta_within", "contemporaneous", names(mat))
+    names(mat_pp) <- gsub("omega_zeta_within", "contemporaneous", names(mat_pp))
+
+    # save results to out
+    out$partial_prune <- mat_pp
 
     # warn exploratory pruning
     message("\nResults of partial pruning are explratory. Be careful to interpret if group-equality constraints decreased AIC or BIC")
 
   # end if (partial_prune = TRUE)
-  } else {
-    mat <- c("Specified partial_prune = FALSE. No partial pruning results.")
-  }# end if (partial_prune)
+  } # end if (partial_prune)
 
-  if (global) {
-    return(list(
-      omnibus = tab,
-      partial_prune = mat
-    ))
-  } else {
-    return(list(
-      partial_prune = mat
-    ))
-  }
-
+  return(out)
 
 } # end: IVPP_panel
 
@@ -550,6 +607,8 @@ IVPP_panelgvar <- function(data,
 #' @param net_type A character vector specifying the type of networks to be compared in the global test.
 #' Specify "saturated" if you want to estimate and compare the saturated networks.
 #' Specify "sparse" if you want to estimate and compare the pruned networks.
+#' @param output_equal Whether to output the networks that are constrained equal across groups.
+#' Default to FALSE. Can set to TRUE if the global tests rejects heterogeneity.
 #' @param prune_alpha A numeric value specifying the alpha level for the pruning (if net_type = "sparse").
 #' @param partial_prune A logical value specifying whether to conduct partial pruning test or not.
 #' @param prune_net A character vector specifying the network you want to partial prune on. Only works when partial_prune = TRUE.
@@ -628,6 +687,7 @@ IVPP_tsgvar <- function(data,
                         g_test_net = c("both", "temporal", "contemporaneous"),
                         # vsModel = c("bothEq", "free"),
                         net_type = c("saturated", "sparse"),
+                        output_equal = FALSE,
                         partial_prune = FALSE,
                         prune_net = c("both", "temporal", "contemporaneous"),
                         prune_alpha = 0.01,
@@ -727,6 +787,9 @@ IVPP_tsgvar <- function(data,
   } else {
     par_fun <- lapply
   }
+
+  # create the list to store output
+  out <- list()
 
   # ----- omnibus test -----
 
@@ -864,29 +927,89 @@ IVPP_tsgvar <- function(data,
       delta_AIC = c(NA, diff(comp_vs_free$AIC)),
       BIC = comp_vs_free$BIC,
       delta_BIC = c(NA, diff(comp_vs_free$BIC)),
-      row.names = comp_vs_free$model
-      # chi_sq = comp_vs_free$Chisq,
-      # delta_chisq = comp_vs_free$Chisq_diff,
-      # p_value = comp_vs_free$p_value
-    )
+      row.names = comp_vs_free$model,
+      chi_sq = comp_vs_free$Chisq,
+      delta_chisq = comp_vs_free$Chisq_diff,
+      df_diff = comp_vs_free$DF_diff,
+      p_value = comp_vs_free$p_value
+    ) %>%
+      mutate(
+        across(-c(p_value, df_diff), sprintf, fmt = "%.2f"),
+        p_value = ifelse((p_value < .001 & !is.na(p_value)),
+                         paste("<.001"), sprintf(p_value, fmt = "%.3f"))
+      ) %>%
+      mutate(
+        across(everything(), function(x)
+          ifelse(is.na(x) | x == "NA", yes = paste(""), no = x))
+      )
+
 
     tab_vs_bothEq <- data.frame(
       AIC = comp_vs_bothEq$AIC,
       delta_AIC = c(NA, diff(comp_vs_bothEq$AIC)),
       BIC = comp_vs_bothEq$BIC,
       delta_BIC = c(NA, diff(comp_vs_bothEq$BIC)),
-      row.names = comp_vs_bothEq$model
-      # chi_sq = comp_vs_bothEq$Chisq,
-      # delta_chisq = comp_vs_bothEq$Chisq_diff,
-      # p_value = comp_vs_bothEq$p_value
-    )
+      row.names = comp_vs_bothEq$model,
+      chi_sq = comp_vs_free$Chisq,
+      delta_chisq = comp_vs_free$Chisq_diff,
+      df_diff = comp_vs_free$DF_diff,
+      p_value = comp_vs_free$p_value
+    ) %>%
+      mutate(
+        across(-c(p_value, df_diff), sprintf, fmt = "%.2f"),
+        p_value = ifelse((p_value < .001 & !is.na(p_value)),
+                         paste("<.001"), sprintf(p_value, fmt = "%.3f"))
+      ) %>%
+      mutate(
+        across(everything(), function(x)
+          ifelse(is.na(x) | x == "NA", yes = paste(""), no = x))
+      )
 
     # return the comparison results
-    tab <- list(
+    out$omnibus <- list(
       vs_free = tab_vs_free,
       vs_bothEq = tab_vs_bothEq
     )
-    #
+
+    if (output_equal){
+
+      if (net_type == "saturated"){
+
+        if (g_test_net == "both") {
+          mod_eq <- mod_saturated_bothEq
+        } else if (g_test_net == "temporal") {
+          mod_eq <- mod_saturated_tempEq
+        } else {
+          mod_eq <- mod_saturated_contEq
+        } # end if(g_test_net)
+
+      } else {
+
+        if (g_test_net == "both") {
+          mod_eq <- mod_union_bothEq
+        } else if (g_test_net == "temporal") {
+          mod_eq <- mod_union_tempEq
+        } else {
+          mod_eq <- mod_union_contEq
+        } # end if(g_test_net)
+
+      } # end if (net_type == saturated)
+
+      # save networks
+      save_matrix <- c("PDC", "beta", "omega_zeta")
+
+      mat_eq <- par_fun(save_matrix, function(m){
+        m <- getmatrix(mod_eq, m)
+        return(m)
+      }) %>% setNames(save_matrix)
+
+      # names(mat) <- gsub("PDC", "temporal", names(mat))
+      names(mat_eq) <- gsub("omega_zeta", "contemporaneous", names(mat_eq))
+
+      out$mat_eq <- mat_eq
+
+    } # end if(output_equal)
+
     #   class(tab_vs_free) <- class(tab_vs_bothEq) <- c("panel_omni", "data.frame")
   } # end: if (global)
 
@@ -952,31 +1075,23 @@ IVPP_tsgvar <- function(data,
     # save networks
     save_matrix <- c("PDC", "beta", "omega_zeta")
 
-    mat <- par_fun(save_matrix, function(m){
+    mat_pp <- par_fun(save_matrix, function(m){
       m <- getmatrix(mod_pp, m)
       return(m)
     }) %>% setNames(save_matrix)
 
     # names(mat) <- gsub("PDC", "temporal", names(mat))
-    names(mat) <- gsub("omega_zeta", "contemporaneous", names(mat))
+    names(mat_pp) <- gsub("omega_zeta", "contemporaneous", names(mat_pp))
+
+    # save results to out
+    out$partial_prune <- mat_pp
 
     # warn exploratory pruning
     message("\nResults of partial pruning are explratory. Be careful to interpret if group-equality constraints decreased AIC or BIC")
 
-  } else {
-    mat <- c("Specified partial_prune = FALSE. No partial pruning results.")
-  }# end if (partial_prune)
+  } # end if (partial_prune)
 
-  if (global) {
-    return(list(
-      omnibus = tab,
-      partial_prune = mat
-    ))
-  } else {
-    return(list(
-      partial_prune = mat
-    ))
-  }
+  return(out)
 
 } # end: IVPP_tsgvar
 
