@@ -123,7 +123,7 @@ IVPP_panelgvar <- function(data,
                        global = TRUE,
                        g_test_net = c("both", "temporal", "contemporaneous"),
                        # vsModel = c("bothEq", "free"),
-                       net_type = c("saturated", "sparse"),
+                       net_type = c("sparse", "saturated"),
                        output_equal = FALSE,
                        partial_prune = FALSE,
                        prune_net = c("both", "temporal", "contemporaneous"),
@@ -202,7 +202,7 @@ IVPP_panelgvar <- function(data,
   }
 
   # net_type
-  if(missing(net_type)){
+  if(global & missing(net_type)){
     stop("specify the type of networks to be compared to net_type")
   }
 
