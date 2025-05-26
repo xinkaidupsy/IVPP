@@ -392,9 +392,9 @@ IVPP_panelgvar <- function(data,
       p_value = comp_vs_free$p_value
     ) %>%
       mutate(
-        across(-c(p_value, df_diff), sprintf, fmt = "%.2f"),
-        p_value = ifelse((p_value < .001 & !is.na(p_value)),
-                         paste("<.001"), sprintf(p_value, fmt = "%.3f"))
+        across(-all_of(c("p_value", "df_diff")), sprintf, fmt = "%.2f"),
+        across("p_value", ~ ifelse((.x < .001 & !is.na(.x)),
+                                   "<.001", sprintf(.x, fmt = "%.3f")))
         ) %>%
       mutate(
         across(everything(), function(x)
@@ -414,9 +414,9 @@ IVPP_panelgvar <- function(data,
       p_value = comp_vs_free$p_value
     ) %>%
       mutate(
-        across(-c(p_value, df_diff), sprintf, fmt = "%.2f"),
-        p_value = ifelse((p_value < .001 & !is.na(p_value)),
-                         paste("<.001"), sprintf(p_value, fmt = "%.3f"))
+        across(-all_of(c("p_value", "df_diff")), sprintf, fmt = "%.2f"),
+        across("p_value", ~ ifelse((.x < .001 & !is.na(.x)),
+                                   "<.001", sprintf(.x, fmt = "%.3f")))
         ) %>%
       mutate(
         across(everything(), function(x)
@@ -931,9 +931,9 @@ IVPP_tsgvar <- function(data,
       p_value = comp_vs_free$p_value
     ) %>%
       mutate(
-        across(-c(p_value, df_diff), sprintf, fmt = "%.2f"),
-        p_value = ifelse((p_value < .001 & !is.na(p_value)),
-                         paste("<.001"), sprintf(p_value, fmt = "%.3f"))
+        across(-all_of(c("p_value", "df_diff")), sprintf, fmt = "%.2f"),
+        across("p_value", ~ ifelse((.x < .001 & !is.na(.x)),
+                                   "<.001", sprintf(.x, fmt = "%.3f")))
       ) %>%
       mutate(
         across(everything(), function(x)
@@ -953,9 +953,9 @@ IVPP_tsgvar <- function(data,
       p_value = comp_vs_free$p_value
     ) %>%
       mutate(
-        across(-c(p_value, df_diff), sprintf, fmt = "%.2f"),
-        p_value = ifelse((p_value < .001 & !is.na(p_value)),
-                         paste("<.001"), sprintf(p_value, fmt = "%.3f"))
+        across(-all_of(c("p_value", "df_diff")), sprintf, fmt = "%.2f"),
+        across("p_value", ~ ifelse((.x < .001 & !is.na(.x)),
+                                   "<.001", sprintf(.x, fmt = "%.3f")))
       ) %>%
       mutate(
         across(everything(), function(x)
