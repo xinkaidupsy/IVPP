@@ -1,7 +1,7 @@
 Package: IVPP
 Type: Package
 Title: Invariance Partial Pruning Test
-Version: 1.1.0
+Version: 1.1.1
 Authors@R: 
     person(
       "Xinkai", "Du", , 
