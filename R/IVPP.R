@@ -140,7 +140,6 @@ IVPP_panelgvar <- function(data,
   net_type <- match.arg(net_type, c("sparse", "saturated"))
   standardize <- match.arg(standardize,  c("none", "z","quantile"))
 
-
   # ----- argument check -----
 
   if(missing(data)){
