@@ -12,7 +12,7 @@ IVPP_tsgvar(
   beepvar,
   global = TRUE,
   g_test_net = c("both", "temporal", "contemporaneous"),
-  net_type = c("saturated", "sparse"),
+  net_type = c("sparse", "saturated"),
   output_equal = FALSE,
   partial_prune = FALSE,
   prune_net = c("both", "temporal", "contemporaneous"),
