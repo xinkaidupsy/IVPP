@@ -1,3 +1,8 @@
+# IVPP 1.1.1
+  * allow net_type to be NULL when global = F
+  * output chi-sq test results 
+  * allow output of equal models
+
 # IVPP 1.1.0
   * fixed the bug with match.arg
   * used future_lapply to reduce running time

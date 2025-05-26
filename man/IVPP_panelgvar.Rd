@@ -140,7 +140,6 @@ pp_both <- IVPP_panelgvar(data,
                           beepvar = "time",
                           groups = "group",
                           global = FALSE,
-                          net_type = "sparse",
                           partial_prune = TRUE,
                           prune_net = "both",
                           ncores = 1)
