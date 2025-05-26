@@ -108,7 +108,6 @@
 #'                           beepvar = "time",
 #'                           groups = "group",
 #'                           global = FALSE,
-#'                           net_type = "sparse",
 #'                           partial_prune = TRUE,
 #'                           prune_net = "both",
 #'                           ncores = 1)
@@ -671,7 +670,6 @@ IVPP_panelgvar <- function(data,
 #'                        vars = paste0("V",1:6),
 #'                        idvar = "id",
 #'                        global = FALSE,
-#'                        net_type = "sparse",
 #'                        partial_prune = TRUE,
 #'                        prune_net = "both",
 #'                        ncores = 1)
