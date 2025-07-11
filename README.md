@@ -111,7 +111,16 @@ data <- sim_tsGVAR(beta_base_ls = net_ls$beta,
                    kappa_base_ls = net_ls$kappa,
                    # n_person = 2,
                    n_time = 100)
-
+                   
+# global test on both networks
+omnibus_both <- IVPP_tsgvar(data,
+                            vars = paste0("V",1:6),
+                            idvar = "id",
+                            g_test_net = "both",
+                            net_type = "sparse",
+                            partial_prune = FALSE,
+                            ncores = 2)
+                            
 # global test on temporal
 omnibus_temp <- IVPP_tsgvar(data,
                             vars = paste0("V",1:6),
