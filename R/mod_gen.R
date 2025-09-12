@@ -34,7 +34,8 @@
 gen_panelGVAR <- function(n_node = 6,
                           p_rewire_temp = 0.5,
                           p_rewire_cont = 0.5,
-                          n_group = 1){
+                          n_group = 1,
+                          propPos = 0.8){
 
 
   # check inputs ------------------------------------------------------------
@@ -51,14 +52,14 @@ gen_panelGVAR <- function(n_node = 6,
   # generate networks -------------------------------------------------------
 
   # the temporal network for g1
-  temp_base_ls[["g1"]] <- diag(0.5, n_node)
+  temp_base_ls[["g1"]] <- diag(1, n_node)
   temp_base_ls[["g1"]][cbind(1:n_node, ((1:n_node) + 1) %% n_node + 1)] <-
-    sample(c(0.25, -0.25), n_node, replace = TRUE, prob = c(0.8, 0.2))
+    sample(c(1, -1), n_node, replace = TRUE, prob = c(propPos, 1-propPos))
+
+  temp_base_ls[["g1"]]  <- temp_base_ls[["g1"]] * rnorm(n_node^2, mean = 0.3, sd = 0.1)
 
   # the contemporaneous network for g1
-  cont_base_ls[["g1"]] <- bootnet::genGGM(n_node, propPositive = 0.8)
-
-
+  cont_base_ls[["g1"]] <- bootnet::genGGM(n_node, propPositive = propPos)
 
   # If there are multiple groups, generate the rest
   if (n_group > 1) {
@@ -169,9 +170,12 @@ gen_tsGVAR <- function(n_node = 6,
   # generate networks -------------------------------------------------------
 
   # the temporal network for g1
-  temp_base_ls[["p1"]] <- diag(0.5, n_node)
+  temp_base_ls[["p1"]] <- diag(1, n_node)
   temp_base_ls[["p1"]][cbind(1:n_node, ((1:n_node) + 1) %% n_node + 1)] <-
-    sample(c(0.25, -0.25), n_node, replace = TRUE, prob = c(0.8, 0.2))
+    sample(c(1, -1), n_node, replace = TRUE, prob = c(propPos, 1-propPos))
+
+  temp_base_ls[["p1"]]  <- temp_base_ls[["p1"]] * rnorm(n_node^2, mean = 0.3, sd = 0.1)
+
 
   # the contemporaneous network for g1
   cont_base_ls[["p1"]] <- bootnet::genGGM(n_node, propPositive = 0.8)

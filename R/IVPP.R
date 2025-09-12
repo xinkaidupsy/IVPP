@@ -632,6 +632,9 @@ IVPP_panelgvar <- function(data,
     # save results to out
     out$partial_prune <- mat_pp
 
+    # save similarity measure as effect size
+    out$sF <- sF(mat_pp)
+
     # warn exploratory pruning
     message("\nResults of partial pruning are explratory. Be careful to interpret if group-equality constraints decreased AIC or BIC")
 
@@ -1197,6 +1200,9 @@ IVPP_tsgvar <- function(data,
     # save results to out
     out$partial_prune <- mat_pp
 
+    # save similarity measure as effect size
+    out$sF <- sF(mat_pp)
+
     # warn exploratory pruning
     message("\nResults of partial pruning are explratory. Be careful to interpret if group-equality constraints decreased AIC or BIC")
 
@@ -1206,7 +1212,3 @@ IVPP_tsgvar <- function(data,
 
 } # end: IVPP_tsgvar
 
-quiet_fit <- function(model, ...) {
-  capture.output( res <- fit(model, ...) )
-  res
-}
