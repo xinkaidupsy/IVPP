@@ -4,7 +4,13 @@
 \alias{gen_tsGVAR}
 \title{Generate time-series GVAR model for multiple (heterogeneous) individuals}
 \usage{
-gen_tsGVAR(n_node = 6, p_rewire_temp = 0.5, p_rewire_cont = 0.5, n_persons = 1)
+gen_tsGVAR(
+  n_node = 6,
+  p_rewire_temp = 0.5,
+  p_rewire_cont = 0.5,
+  n_persons = 1,
+  propPos = 0.8
+)
 }
 \arguments{
 \item{n_node}{an integer denoting the number of nodes}
@@ -14,6 +20,8 @@ gen_tsGVAR(n_node = 6, p_rewire_temp = 0.5, p_rewire_cont = 0.5, n_persons = 1)
 \item{p_rewire_cont}{a numeric value between 0-1 denoting the extent of individual difference in the contemporaneous network}
 
 \item{n_persons}{an integer denoting the number of individuals to generate tsGVAR for}
+
+\item{propPos}{specify the proportion of positive edges in the networks generated}
 }
 \value{
 A list of beta, PDC, kappa and contemporaneous networks

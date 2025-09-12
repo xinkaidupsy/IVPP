@@ -6,6 +6,7 @@
 #' @param n_group an integer denoting the number of groups
 #' @param p_rewire_temp a numeric value between 0-1 denoting the extent of group difference in the temporal network
 #' @param p_rewire_cont a numeric value between 0-1 denoting the extent of group difference in the contemporaneous network
+#' @param propPos specify the proportion of positive edges in the networks generated
 #'
 #' @author Xinkai Du
 #' Maintainer: Xinkai Du <xinkai.du.xd@gmail.com>
@@ -125,6 +126,7 @@ gen_panelGVAR <- function(n_node = 6,
 #' @param n_persons an integer denoting the number of individuals to generate tsGVAR for
 #' @param p_rewire_temp a numeric value between 0-1 denoting the extent of individual difference in the temporal network
 #' @param p_rewire_cont a numeric value between 0-1 denoting the extent of individual difference in the contemporaneous network
+#' @param propPos specify the proportion of positive edges in the networks generated
 #'
 #' @author Xinkai Du
 #' Maintainer: Xinkai Du <xinkai.du.xd@gmail.com>
@@ -153,7 +155,8 @@ gen_panelGVAR <- function(n_node = 6,
 gen_tsGVAR <- function(n_node = 6,
                        p_rewire_temp = 0.5,
                        p_rewire_cont = 0.5,
-                       n_persons = 1){
+                       n_persons = 1,
+                       propPos = 0.8){
 
 
   # check inputs ------------------------------------------------------------
@@ -178,7 +181,7 @@ gen_tsGVAR <- function(n_node = 6,
 
 
   # the contemporaneous network for g1
-  cont_base_ls[["p1"]] <- bootnet::genGGM(n_node, propPositive = 0.8)
+  cont_base_ls[["p1"]] <- bootnet::genGGM(n_node, propPositive = propPos)
 
 
 

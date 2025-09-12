@@ -8,7 +8,8 @@ gen_panelGVAR(
   n_node = 6,
   p_rewire_temp = 0.5,
   p_rewire_cont = 0.5,
-  n_group = 1
+  n_group = 1,
+  propPos = 0.8
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ gen_panelGVAR(
 \item{p_rewire_cont}{a numeric value between 0-1 denoting the extent of group difference in the contemporaneous network}
 
 \item{n_group}{an integer denoting the number of groups}
+
+\item{propPos}{specify the proportion of positive edges in the networks generated}
 }
 \value{
 A list of beta, PDC, kappa and contemporaneous networks
