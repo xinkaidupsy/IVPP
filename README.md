@@ -110,7 +110,7 @@ net_ls <- gen_tsGVAR(n_node = 6,
 data <- sim_tsGVAR(beta_base_ls = net_ls$beta,
                    kappa_base_ls = net_ls$kappa,
                    # n_person = 2,
-                   n_time = 100)
+                   n_time = 300)
                    
 # global test on both networks
 omnibus_both <- IVPP_tsgvar(data,

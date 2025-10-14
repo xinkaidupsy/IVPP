@@ -22,11 +22,13 @@ Imports:
     clusterGeneration,
     dplyr,
     mvtnorm,
-    psychonetrics,
+    psychonetrics (>= 0.13.2),
     graphicalVAR,
     lifecycle,
     future.apply,
     future
+Remotes:
+    sachaepskamp/psychonetrics
 BugReports: https://github.com/xinkaidupsy/IVPP/issues
 URL: https://github.com/xinkaidupsy/IVPP
 RoxygenNote: 7.3.2
