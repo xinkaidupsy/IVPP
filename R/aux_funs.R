@@ -2,7 +2,7 @@
 # capture fit measures without printing
 
 quiet_fit <- function(model, ...) {
-  capture.output( res <- fit(model, ...) )
+  utils::capture.output( res <- fit(model, ...) )
   res
 }
 
@@ -17,7 +17,7 @@ sF <- function(mat) {
   # group names
   g <- names(mat$beta)
   # all possible comparison pairs
-  comb <- combn(n_g, 2, simplify = FALSE)
+  comb <- utils::combn(n_g, 2, simplify = FALSE)
 
   # calculate norm
   norms <- lapply(net, function(n) {

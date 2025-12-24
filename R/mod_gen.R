@@ -20,7 +20,7 @@
 #' which is a inverse of covariance matrix denoting the (dependence) among variables;
 #' kappa can be further standardized to the contemporaneous networks (\code{omega_zeta_within})
 #' @import bootnet dplyr clusterGeneration
-#' @importFrom stats setNames cov2cor
+#' @importFrom stats setNames cov2cor rnorm
 #' @export gen_panelGVAR
 #' @examples
 #' library(IVPP)
@@ -140,7 +140,7 @@ gen_panelGVAR <- function(n_node = 6,
 #' which is a inverse of covariance matrix denoting the (dependence) among variables;
 #' kappa can be further standardized to the contemporaneous networks (\code{omega_zeta_within})
 #' @import bootnet dplyr clusterGeneration
-#' @importFrom stats setNames cov2cor
+#' @importFrom stats setNames cov2cor rnorm
 #' @export gen_tsGVAR
 #' @examples
 #' library(IVPP)

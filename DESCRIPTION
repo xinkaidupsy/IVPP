@@ -22,11 +22,14 @@ Imports:
     clusterGeneration,
     dplyr,
     mvtnorm,
-    psychonetrics (>= 0.13.2),
+    psychonetrics,
     graphicalVAR,
     lifecycle,
     future.apply,
-    future
+    future,
+    networktools,
+    qgraph,
+    fmsb
 Remotes:
     sachaepskamp/psychonetrics
 BugReports: https://github.com/xinkaidupsy/IVPP/issues

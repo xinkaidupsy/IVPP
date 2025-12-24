@@ -279,13 +279,13 @@ IVPP_panelgvar <- function(data,
 
       # store its fit
       out$fit$free <- quiet_fit(mod_saturated) %>%
-        filter(Measure %in% measures) %>%
-        select(Value) %>% t %>%
+        filter(.data$Measure %in% measures) %>%
+        select(.data$Value) %>% t %>%
         round(3)
 
       out$fit$bothEq <- quiet_fit(mod_saturated_bothEq) %>%
-        filter(Measure %in% measures) %>%
-        select(Value) %>% t %>%
+        filter(.data$Measure %in% measures) %>%
+        select(.data$Value) %>% t %>%
         round(3)
 
       # multi-group model estimation
@@ -304,13 +304,13 @@ IVPP_panelgvar <- function(data,
 
         # store model fit
         out$fit$tempEq <- quiet_fit(mod_saturated_tempEq) %>%
-          filter(Measure %in% measures) %>%
-          select(Value) %>% t %>%
+          filter(.data$Measure %in% measures) %>%
+          select(.data$Value) %>% t %>%
           round(3)
 
         out$fit$contEq <- quiet_fit(mod_saturated_contEq) %>%
-          filter(Measure %in% measures) %>%
-          select(Value) %>% t %>%
+          filter(.data$Measure %in% measures) %>%
+          select(.data$Value) %>% t %>%
           round(3)
 
       }
@@ -354,8 +354,8 @@ IVPP_panelgvar <- function(data,
 
       # store model fit
       out$fit$free <- quiet_fit(mod_union) %>%
-        filter(Measure %in% measures) %>%
-        select(Value) %>% t %>%
+        filter(.data$Measure %in% measures) %>%
+        select(.data$Value) %>% t %>%
         round(3)
 
       # the fully-constrained union model
@@ -365,8 +365,8 @@ IVPP_panelgvar <- function(data,
 
       # store model fit
       out$fit$bothEq <- quiet_fit(mod_union_bothEq) %>%
-        filter(Measure %in% measures) %>%
-        select(Value) %>% t %>%
+        filter(.data$Measure %in% measures) %>%
+        select(.data$Value) %>% t %>%
         round(3)
 
       # estimate the multi-group model
@@ -384,13 +384,13 @@ IVPP_panelgvar <- function(data,
 
         # store model fit
         out$fit$tempEq <- quiet_fit(mod_union_tempEq) %>%
-          filter(Measure %in% measures) %>%
-          select(Value) %>% t %>%
+          filter(.data$Measure %in% measures) %>%
+          select(.data$Value) %>% t %>%
           round(3)
 
         out$fit$contEq <- quiet_fit(mod_union_contEq) %>%
-          filter(Measure %in% measures) %>%
-          select(Value) %>% t %>%
+          filter(.data$Measure %in% measures) %>%
+          select(.data$Value) %>% t %>%
           round(3)
 
       }
@@ -614,8 +614,8 @@ IVPP_panelgvar <- function(data,
 
     # store model fit
     out$fit$partial_prune <- quiet_fit(mod_pp) %>%
-      filter(Measure %in% measures) %>%
-      select(Value) %>% t %>%
+      filter(.data$Measure %in% measures) %>%
+      select(.data$Value) %>% t %>%
       round(3)
 
     # save networks
@@ -877,13 +877,13 @@ IVPP_tsgvar <- function(data,
 
       # store model fit
       out$fit$free <- quiet_fit(mod_saturated) %>%
-        filter(Measure %in% measures) %>%
-        select(Value) %>% t %>%
+        filter(.data$Measure %in% measures) %>%
+        select(.data$Value) %>% t %>%
         round(3)
 
       out$fit$bothEq <- quiet_fit(mod_saturated_bothEq) %>%
-        filter(Measure %in% measures) %>%
-        select(Value) %>% t %>%
+        filter(.data$Measure %in% measures) %>%
+        select(.data$Value) %>% t %>%
         round(3)
 
       # multi-group model estimation
@@ -902,13 +902,13 @@ IVPP_tsgvar <- function(data,
 
         # store model fit
         out$fit$tempEq <- quiet_fit(mod_saturated_tempEq) %>%
-          filter(Measure %in% measures) %>%
-          select(Value) %>% t %>%
+          filter(.data$Measure %in% measures) %>%
+          select(.data$Value) %>% t %>%
           round(3)
 
         out$fit$contEq <- quiet_fit(mod_saturated_contEq) %>%
-          filter(Measure %in% measures) %>%
-          select(Value) %>% t %>%
+          filter(.data$Measure %in% measures) %>%
+          select(.data$Value) %>% t %>%
           round(3)
 
       }
@@ -952,8 +952,8 @@ IVPP_tsgvar <- function(data,
 
       # store model fit
       out$fit$free <- quiet_fit(mod_union) %>%
-        filter(Measure %in% measures) %>%
-        select(Value) %>% t %>%
+        filter(.data$Measure %in% measures) %>%
+        select(.data$Value) %>% t %>%
         round(3)
 
       # the fully-constrained union model
@@ -963,8 +963,8 @@ IVPP_tsgvar <- function(data,
 
       # store model fit
       out$fit$bothEq <- quiet_fit(mod_union_bothEq) %>%
-        filter(Measure %in% measures) %>%
-        select(Value) %>% t %>%
+        filter(.data$Measure %in% measures) %>%
+        select(.data$Value) %>% t %>%
         round(3)
 
       # estimate the multi-group model
@@ -983,13 +983,13 @@ IVPP_tsgvar <- function(data,
 
         # store model fit
         out$fit$tempEq <- quiet_fit(mod_union_tempEq) %>%
-          filter(Measure %in% measures) %>%
-          select(Value) %>% t %>%
+          filter(.data$Measure %in% measures) %>%
+          select(.data$Value) %>% t %>%
           round(3)
 
         out$fit$contEq <- quiet_fit(mod_union_contEq) %>%
-          filter(Measure %in% measures) %>%
-          select(Value) %>% t %>%
+          filter(.data$Measure %in% measures) %>%
+          select(.data$Value) %>% t %>%
           round(3)
 
       }
@@ -1182,8 +1182,8 @@ IVPP_tsgvar <- function(data,
 
     # store model fit
     out$fit$partial_prune <- quiet_fit(mod_pp) %>%
-      filter(Measure %in% measures) %>%
-      select(Value) %>% t %>%
+      filter(.data$Measure %in% measures) %>%
+      select(.data$Value) %>% t %>%
       round(3)
 
     # save networks
