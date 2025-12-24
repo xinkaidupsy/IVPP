@@ -170,8 +170,7 @@ centrality <- function(
 #' @param axis_range Numeric length-2 vector `c(min, max)` for the radial axis. If `NULL`,
 #'   computed from the selected measures.
 #' @param add_legend Logical. If `TRUE`, adds a base-R legend with one entry per selected measure.
-#' @param legend_pos Character position passed to \code{\link[graphics]{legend}},
-#'   e.g. `"bottomright"`, `"topright"`, etc.
+#' @param legend_pos Character position, e.g. `"bottomright"`, `"topright"`, etc.
 #' @param ... Additional arguments forwarded to \code{\link[fmsb]{radarchart}}.
 #'
 #' @return Invisibly returns the data frame used for plotting (in \pkg{fmsb} format):
