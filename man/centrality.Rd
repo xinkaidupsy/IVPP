@@ -2,7 +2,7 @@
 % Please edit documentation in R/centrality.r
 \name{centrality}
 \alias{centrality}
-\title{Centrality (degree/EI) and bridge centrality for an adjacency matrix}
+\title{Centrality (degree/EI) and bridge centrality for an network matrix}
 \usage{
 centrality(
   graph,
@@ -17,7 +17,7 @@ centrality(
 )
 }
 \arguments{
-\item{graph}{A square numeric adjacency matrix (\verb{p x p}). Can be weighted and/or signed.
+\item{graph}{A square numeric network matrix (\verb{p x p}). Can be weighted and/or signed.
 If directed, provide a non-symmetric matrix. Row and column names should be identical
 and in the same order (node names).}
 
@@ -35,7 +35,7 @@ Defaults to the absolute value.}
 
 \item{directed}{Logical. Whether the input network is directed.
 Automatically detected if set to "NULL" (the default).
-Symmetric adjacency matrices will be undirected, asymmetric matrices will be directed}
+Symmetric network matrices will be undirected, asymmetric matrices will be directed}
 
 \item{bridge_normalize}{logical. Bridge centralities are divided by their highest possible value
 (assuming max edge strength=1) in order to normalize by different community sizes}

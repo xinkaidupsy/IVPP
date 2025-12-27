@@ -34,8 +34,7 @@ computed from the selected measures.}
 
 \item{add_legend}{Logical. If \code{TRUE}, adds a base-R legend with one entry per selected measure.}
 
-\item{legend_pos}{Character position passed to \code{\link[graphics]{legend}},
-e.g. \code{"bottomright"}, \code{"topright"}, etc.}
+\item{legend_pos}{Character position, e.g. \code{"bottomright"}, \code{"topright"}, etc.}
 
 \item{...}{Additional arguments forwarded to \code{\link[fmsb]{radarchart}}.}
 }

@@ -1,11 +1,11 @@
-#' Centrality (degree/EI) and bridge centrality for an adjacency matrix
+#' Centrality (degree/EI) and bridge centrality for an network matrix
 #'
 #' Computes node centrality measures from a weighted network matrix.
 #' Degree and expected-influence measures are obtained via
 #' \code{\link[qgraph]{centrality}} and bridge centrality is obtained via
 #' \code{\link[networktools]{bridge}} when communities are supplied.
 #'
-#' @param graph A square numeric adjacency matrix (`p x p`). Can be weighted and/or signed.
+#' @param graph A square numeric network matrix (`p x p`). Can be weighted and/or signed.
 #'   If directed, provide a non-symmetric matrix. Row and column names should be identical
 #'   and in the same order (node names).
 #' @param communities A character vector indicating community membership of the nodes
@@ -17,7 +17,7 @@
 #' @param signed Logical, set to FALSE to make all edge weights absolute.
 #' @param directed Logical. Whether the input network is directed.
 #' Automatically detected if set to "NULL" (the default).
-#' Symmetric adjacency matrices will be undirected, asymmetric matrices will be directed
+#' Symmetric network matrices will be undirected, asymmetric matrices will be directed
 #' @param bridge_normalize logical. Bridge centralities are divided by their highest possible value
 #' (assuming max edge strength=1) in order to normalize by different community sizes
 #' @param useCommunities Character string passed to \code{networktools::bridge(useCommunities = ...)}.
@@ -70,8 +70,7 @@ centrality <- function(
   if (nrow(graph) != ncol(graph)) stop("`graph` must be square (p x p).")
 
   W <- graph
-  W[is.na(W)] <- 0
-  diag(W) <- 0
+  g <- qgraph::qgraph(W, DoNotPlot = TRUE, directed = directed, labels = nodes)
 
   p <- ncol(W)
 
@@ -98,15 +97,13 @@ centrality <- function(
     directed <- !isTRUE(all.equal(W, t(W)))
   }
 
-  # ---- Degree (Opsahl-style) + Expected Influence ----
-  g <- qgraph::qgraph(W, DoNotPlot = TRUE)
-
+  # ---- Degree + Expected Influence ----
   cent_q <- qgraph::centrality(
     g,
-    alpha    = alpha,
-    posfun   = posfun,
+    alpha = alpha,
+    posfun = posfun,
     weighted = weighted,
-    signed   = signed
+    signed = signed
   )
 
   keep <- c("OutDegree","InDegree","OutExpectedInfluence","InExpectedInfluence")
@@ -129,7 +126,7 @@ centrality <- function(
     }
 
     bridge_list <- networktools::bridge(
-      network = W,
+      network = g,
       communities = communities,
       useCommunities = useCommunities,
       directed = directed,
@@ -152,6 +149,7 @@ centrality <- function(
     )
   )
 }
+
 
 #' Radar plot for selected centrality measures
 #'
