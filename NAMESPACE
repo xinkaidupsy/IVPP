@@ -2,6 +2,7 @@
 
 export(IVPP_panelgvar)
 export(IVPP_tsgvar)
+export(bridge_by_target)
 export(centrality)
 export(centrality_radar)
 export(gen_panelGVAR)

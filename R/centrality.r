@@ -69,35 +69,23 @@ centrality <- function(
   if (!is.matrix(graph)) stop("`graph` must be a network matrix.")
   if (nrow(graph) != ncol(graph)) stop("`graph` must be square (p x p).")
 
-  W <- graph
-  g <- qgraph::qgraph(W, DoNotPlot = TRUE, directed = directed, labels = nodes)
-
-  p <- ncol(W)
+  p <- ncol(graph)
 
   # Node names (needed for consistent outputs)
-  rn <- rownames(W)
-  cn <- colnames(W)
-  if (is.null(rn) && is.null(cn)) {
-    cn <- paste0("V", seq_len(p))
-    rn <- cn
-    colnames(W) <- cn
-    rownames(W) <- rn
-  } else if (is.null(rn)) {
-    rownames(W) <- cn
-  } else if (is.null(cn)) {
-    colnames(W) <- rn
-  } else if (!identical(rn, cn)) {
-    stop("Row/column names must match and be in the same order.")
-  }
+  nodes <- rownames(graph)
+  if (is.null(nodes)) nodes <- colnames(graph)
+  if (is.null(nodes)) nodes <- paste0("V", seq_len(p))
+  rownames(graph) <- colnames(graph) <- nodes
 
-  nodes <- colnames(W)
+  g <- qgraph::qgraph(graph, DoNotPlot = TRUE, directed = directed, labels = nodes)
 
   # Directedness (used for meta + passed to bridge)
   if (is.null(directed)) {
-    directed <- !isTRUE(all.equal(W, t(W)))
+    directed <- !isTRUE(all.equal(graph, t(graph)))
   }
 
   # ---- Degree + Expected Influence ----
+
   cent_q <- qgraph::centrality(
     g,
     alpha = alpha,
@@ -321,4 +309,83 @@ centrality_radar <- function(
   }
 
   invisible(df_plot)
+}
+
+#' Bridge centrality by target community
+#'
+#' Computes bridge strength by community pairs
+#' @param graph p x p adjacency matrix (can be directed or undirected)
+#' @param community character vector of length p in the SAME order as
+#' rows/cols of graph e.g., rep(c("dep","anx","mech"), each = 3)
+#' @export bridge_by_community
+#'
+bridge_by_community <- function(graph, community) {
+
+
+  # --- sanity checks ---
+  #
+  if (!is.matrix(graph)) stop("graph must be a matrix.")
+  if (nrow(graph) != ncol(graph)) stop("graph must be square (p x p).")
+  p <- nrow(graph)
+
+  # check community input
+  if (length(community) != p) stop("community must have length nrow(graph).")
+  community <- as.character(community)
+
+  # set node names
+  nodes <- rownames(graph)
+  if (is.null(nodes)) nodes <- colnames(graph)
+  if (is.null(nodes)) nodes <- paste0("V", seq_len(p))
+  rownames(graph) <- colnames(graph) <- nodes
+
+  # NA to 0 & ignore self-loops
+  graph[is.na(graph)] <- 0
+  diag(graph) <- 0
+
+  absW <- abs(graph)
+  comms <- unique(community)
+
+  # --- calculate strength and EI by target community ---
+  out_strength <- matrix(NA, p, length(comms), dimnames = list(nodes, comms))
+  in_strength <- matrix(NA, p, length(comms), dimnames = list(nodes, comms))
+  out_ei <- matrix(NA, p, length(comms), dimnames = list(nodes, comms))
+  in_ei <- matrix(NA, p, length(comms), dimnames = list(nodes, comms))
+
+  for (C in comms) {
+    idx <- which(community == C)
+
+    # "out" uses row i -> columns in target community C
+    out_strength[, C] <- rowSums(absW[, idx, drop = FALSE])
+    out_ei[, C] <- rowSums(graph[, idx, drop = FALSE])
+
+    # "in" uses rows in target community C -> column i
+    in_strength[, C] <- colSums(absW[idx, , drop = FALSE])
+    in_ei[, C] <- colSums(graph[idx, , drop = FALSE])
+
+    # within-community entries are not "bridge" edges, set to NA
+    out_strength[idx, C] <- NA
+    out_ei[idx, C] <- NA
+    in_strength[idx, C] <- NA
+    in_ei[idx, C] <- NA
+  }
+
+  colnames(out_strength) <- paste0("bridge_strength_out_to_", comms)
+  colnames(in_strength) <- paste0("bridge_strength_in_from_", comms)
+  colnames(out_ei) <- paste0("bridge_EI_out_to_", comms)
+  colnames(in_ei) <- paste0("bridge_EI_in_from_", comms)
+
+  data.frame(
+    node = nodes,
+    community = community,
+    out_strength,
+    total_bridge_strength_out = rowSums(out_strength, na.rm = TRUE),
+    in_strength,
+    total_bridge_strength_in = rowSums(in_strength, na.rm = TRUE),
+    out_ei,
+    total_bridge_EI_out = rowSums(out_ei, na.rm = TRUE),
+    in_ei,
+    total_bridge_EI_in = rowSums(in_ei, na.rm = TRUE),
+    row.names = NULL,
+    check.names = FALSE
+  )
 }
