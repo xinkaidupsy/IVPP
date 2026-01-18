@@ -14,6 +14,9 @@ Description: An implementation of the Invariance Partial Pruning (IVPP) approach
   Pruning Approach to The Network Comparison in Longitudinal Data. IVPP is a 
   two-step method that first test for global network structural difference with 
   invariance test and then inspect specific edge difference with partial pruning. 
+  The package also allows you to compute centrality measures and use radar chart to 
+  plot. Analysis of bridge centralities by community pairs is also possible (e.g.,
+  the bridge strength from depression to anxiety, and from depression to panic disorder). 
 License: GPL (>= 3)
 Encoding: UTF-8
 Depends: R (>= 4.3.0)
