@@ -45,6 +45,10 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
+          cache-version: 2          
+          pak-version: devel        
+          upgrade: 'TRUE'  
+
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
