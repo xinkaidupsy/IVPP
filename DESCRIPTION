@@ -1,7 +1,7 @@
 Package: IVPP
 Type: Package
 Title: Invariance Partial Pruning Test
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: 
     person(
       "Xinkai", "Du", , 
@@ -33,8 +33,6 @@ Imports:
     networktools,
     qgraph,
     fmsb
-Remotes:
-    sachaepskamp/psychonetrics
 BugReports: https://github.com/xinkaidupsy/IVPP/issues
 URL: https://github.com/xinkaidupsy/IVPP
 RoxygenNote: 7.3.2

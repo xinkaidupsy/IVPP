@@ -1,3 +1,7 @@
+# IVPP 1.1.2
+  * added similarity score (sF) as effect size measure
+  * added the functions to compute and plot centrality
+
 # IVPP 1.1.1
   * allow net_type to be NULL when global = F
   * output chi-sq test results 
